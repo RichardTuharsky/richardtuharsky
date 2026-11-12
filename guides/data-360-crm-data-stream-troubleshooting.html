@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data 360 Is Connected, but CRM Data Won't Load | Sync &amp; Send</title>
+<meta name="description" content="A practical, eight-stage guide to finding where Salesforce CRM data stops on its way into Data 360, and proving the fix worked.">
+<meta property="og:title" content="Data 360 Is Connected, but CRM Data Won't Load">
+<meta property="og:description" content="A practical guide to finding where Salesforce CRM data stops reaching Data 360.">
+<meta property="og:type" content="article">
+<meta name="author" content="Richard Tuharsky">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314213D'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-style='italic' font-size='40' text-anchor='middle' fill='%23FFB703'%3E%26%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap">
+<style>
+:root {
+  /* Layout: navy masthead with the article title, then a paper reading column beside a route-style table of contents */
+  --night: #14213D;
+  --board: #0C1630;
+  --board-rule: #24345A;
+  --paper: #F5F6F2;
+  --ink: #14213D;
+  --muted: #4E5A70;
+  --rule: #D3D7DE;
+  --surface: #FFFFFF;
+  --on-night-soft: #D5DCE8;
+  --on-night-muted: #AEB8CC;
+  --signal: #FFB703;
+  --line-1: #FF5D73;
+  --pass: #0F7A6F;
+  --pass-bg: #E3F4F1;
+  --warn: #8A5A00;
+  --warn-bg: #FFF2D6;
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --wrap: 72rem;
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 1.125rem; line-height: 1.65; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+p { margin: 0; }
+a { color: inherit; text-underline-offset: 0.18em; }
+:focus-visible { outline: 3px solid var(--signal); outline-offset: 3px; border-radius: 4px; }
+.wrap { max-width: var(--wrap); margin-inline: auto; padding-inline: var(--gutter); }
+
+/* Masthead */
+.night { background: var(--night); color: #FFFFFF; }
+.site-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 2rem; padding-block: 1.4rem; }
+.brand { display: flex; flex-direction: column; gap: 0.2rem; text-decoration: none; color: #FFFFFF; }
+.wordmark { font-family: var(--font-display); font-variation-settings: "wdth" 125; font-weight: 850; font-size: 1.375rem; line-height: 1; letter-spacing: -0.01em; }
+.wordmark .amp { font-family: var(--font-body); font-style: italic; font-weight: 500; color: var(--signal); }
+.byline { font-family: var(--font-display); font-size: 0.875rem; color: var(--on-night-muted); }
+.site-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1.25rem; font-family: var(--font-display); font-size: 0.9375rem; }
+.site-nav a { display: inline-flex; align-items: center; min-height: 44px; color: #E8ECF4; text-decoration: none; }
+.site-nav a:hover { text-decoration: underline; }
+.site-nav .nav-cta { padding: 0 1.1rem; border-radius: 999px; background: var(--signal); color: var(--night); font-weight: 700; }
+
+.masthead { padding-block: clamp(1.5rem, 4vw, 3rem) clamp(2.5rem, 5vw, 4rem); display: flex; flex-direction: column; gap: 1.1rem; max-width: 52rem; }
+.crumbs { display: flex; flex-wrap: wrap; gap: 0.4rem; font-family: var(--font-display); font-size: 0.875rem; color: var(--on-night-muted); }
+.crumbs a { color: var(--on-night-muted); }
+.crumbs li { list-style: none; display: inline-flex; gap: 0.4rem; }
+.crumbs li + li::before { content: "/"; }
+.crumbs ol { display: contents; }
+.stop-tag { display: inline-flex; align-items: center; gap: 0.55rem; font-family: var(--font-display); font-weight: 650; font-size: 0.875rem; color: var(--on-night-soft); }
+.stop-tag::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--line-1); }
+.masthead h1 { font-variation-settings: "wdth" 120; font-weight: 870; font-size: clamp(2rem, 4.4vw, 3.5rem); line-height: 1.02; letter-spacing: -0.025em; }
+.dek { font-size: clamp(1.125rem, 1.8vw, 1.3125rem); color: var(--on-night-soft); max-width: 40rem; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; padding-top: 0.4rem; font-family: var(--font-display); font-size: 0.875rem; color: var(--on-night-muted); }
+.meta strong { color: #FFFFFF; font-weight: 650; }
+
+/* Layout */
+.layout { display: grid; grid-template-columns: 15rem minmax(0, 44rem); justify-content: space-between; gap: 4rem; padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(3rem, 7vw, 5rem); }
+.toc { position: sticky; top: 1.5rem; align-self: start; font-family: var(--font-display); }
+.toc-title { font-weight: 750; font-size: 0.9375rem; margin-bottom: 0.9rem; }
+.toc ol { list-style: none; margin: 0; padding: 0; position: relative; }
+.toc ol::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 4px; background: var(--line-1); border-radius: 2px; }
+.toc li { position: relative; padding-left: 1.6rem; }
+.toc li::before { content: ""; position: absolute; left: 0; top: 0.62rem; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); border: 3px solid var(--ink); }
+.toc a { display: block; padding: 0.38rem 0; font-size: 0.875rem; line-height: 1.35; color: var(--ink); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.toc .num { display: block; font-size: 0.75rem; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.toc-mobile { display: none; }
+
+/* Article */
+.article { min-width: 0; display: flex; flex-direction: column; gap: 3.5rem; }
+.intro { display: flex; flex-direction: column; gap: 1.1rem; }
+.intro p:first-child { font-size: 1.25rem; line-height: 1.55; }
+.article h2 { font-variation-settings: "wdth" 112; font-weight: 800; font-size: clamp(1.5rem, 2.6vw, 1.875rem); line-height: 1.12; letter-spacing: -0.015em; }
+.block { display: flex; flex-direction: column; gap: 1.1rem; scroll-margin-top: 1.5rem; }
+.start-table { width: 100%; border-collapse: collapse; font-size: 1rem; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; }
+.start-table th { text-align: left; font-family: var(--font-display); font-size: 0.8125rem; font-weight: 700; color: var(--muted); padding: 0.75rem 1rem; background: #ECEEE8; }
+.start-table td { padding: 0.8rem 1rem; border-top: 1px solid var(--rule); vertical-align: top; }
+.start-table td:last-child { font-family: var(--font-display); font-weight: 650; font-size: 0.9375rem; white-space: nowrap; }
+.start-table code { font-size: 0.875em; }
+.table-box { overflow-x: auto; }
+
+.stage-label { font-family: var(--font-display); font-weight: 750; font-size: 0.875rem; font-variant-numeric: tabular-nums; color: var(--muted); display: flex; align-items: center; gap: 0.6rem; }
+.stage-label::before { content: ""; width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--ink); background: var(--surface); }
+.goal { font-size: 1.125rem; }
+.goal strong { font-family: var(--font-display); }
+.steps { margin: 0; padding-left: 1.4rem; display: flex; flex-direction: column; gap: 0.7rem; }
+.steps li::marker { font-family: var(--font-display); font-weight: 750; color: var(--muted); }
+.path { font-family: var(--font-display); font-weight: 600; font-size: 0.95em; }
+code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.9em; background: #E8EAE4; padding: 0.05em 0.35em; border-radius: 4px; }
+.note { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 1rem 1.2rem; font-size: 1rem; display: flex; gap: 0.8rem; }
+.note::before { content: "i"; flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: #FFFFFF; display: grid; place-items: center; font-family: var(--font-body); font-style: italic; font-weight: 700; font-size: 0.875rem; margin-top: 0.1rem; }
+.note.warn { background: var(--warn-bg); border-color: #F1D79A; }
+.note.warn::before { content: "!"; font-family: var(--font-display); font-style: normal; background: var(--warn); }
+.pass { background: var(--pass-bg); border-radius: 12px; padding: 1rem 1.2rem; font-size: 1rem; display: flex; gap: 0.8rem; }
+.pass::before { content: ""; flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; margin-top: 0.1rem; background: var(--pass) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center / 16px no-repeat; }
+.pass strong { font-family: var(--font-display); color: var(--pass); }
+.resources { font-family: var(--font-display); font-size: 0.9375rem; display: flex; flex-wrap: wrap; gap: 0.35rem 1.25rem; color: var(--muted); }
+.resources span { font-weight: 700; color: var(--ink); width: 100%; }
+.resources a { color: #2B3FA8; }
+
+.resolved { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.resolved li { display: flex; gap: 0.75rem; align-items: flex-start; background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 0.75rem 1rem; font-size: 1rem; }
+.resolved input { flex: 0 0 auto; width: 18px; height: 18px; margin: 0.25rem 0 0; accent-color: var(--pass); }
+
+.article-end { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.75rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); font-family: var(--font-display); font-size: 0.9375rem; }
+.article-end a { color: var(--ink); font-weight: 650; }
+
+/* Closing band */
+.closing { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 2rem 4rem; padding-block: clamp(3.5rem, 8vw, 5.5rem) clamp(2.5rem, 6vw, 4rem); }
+.closing-copy { flex: 1 1 23.75rem; min-width: 0; display: flex; flex-direction: column; gap: 0.9rem; }
+.closing h2 { font-variation-settings: "wdth" 125; font-weight: 880; font-size: clamp(2rem, 4.4vw, 3.5rem); line-height: 1; letter-spacing: -0.03em; }
+.closing-copy p { color: var(--on-night-soft); }
+.signup { flex: 1 1 23.75rem; display: flex; flex-direction: column; gap: 0.6rem; max-width: 32.5rem; }
+.signup label { font-family: var(--font-display); font-weight: 600; font-size: 0.875rem; color: #E8ECF4; }
+.signup-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.signup input[type="email"] { flex: 1 1 14rem; min-width: 0; min-height: 50px; font-family: var(--font-display); font-size: 1rem; padding: 0.75rem 1rem; border: 2px solid transparent; border-radius: 10px; background: #FFFFFF; color: var(--ink); }
+.signup input[type="email"]::placeholder { color: #6B7588; }
+.signup input[aria-invalid="true"] { border-color: var(--line-1); }
+.signup button { flex: 0 0 auto; min-height: 50px; font-family: var(--font-display); font-weight: 750; font-size: 1rem; padding: 0.75rem 1.4rem; border: 0; border-radius: 10px; cursor: pointer; background: var(--signal); color: var(--night); }
+.consent { font-family: var(--font-display); font-size: 0.8125rem; line-height: 1.5; color: var(--on-night-muted); }
+.consent a { color: var(--on-night-muted); }
+.status { font-family: var(--font-display); font-size: 0.875rem; font-weight: 600; min-height: 1.3em; }
+.status[data-tone="error"] { color: #FF8A9A; }
+.status[data-tone="info"] { color: var(--signal); }
+.site-foot { border-top: 1px solid var(--board-rule); padding-block: 1.75rem 2.75rem; display: flex; flex-direction: column; gap: 1rem; font-family: var(--font-display); font-size: 0.875rem; color: var(--on-night-muted); }
+.foot-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; }
+.foot-row span:last-child { max-width: 40rem; }
+.site-foot details { max-width: 44rem; }
+.site-foot summary { cursor: pointer; color: #FFFFFF; font-weight: 600; width: max-content; }
+.site-foot details[open] summary { margin-bottom: 0.6rem; }
+.site-foot details p { font-family: var(--font-body); font-size: 0.9375rem; line-height: 1.55; color: var(--on-night-soft); margin-bottom: 0.6rem; }
+
+@media (max-width: 960px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+  .toc { display: none; }
+  .toc-mobile { display: block; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 0.9rem 1.1rem; font-family: var(--font-display); }
+  .toc-mobile summary { cursor: pointer; font-weight: 750; font-size: 0.9375rem; }
+  .toc-mobile ol { margin: 0.75rem 0 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.9375rem; }
+  .toc-mobile a { color: var(--ink); }
+  .start-table td:last-child { white-space: normal; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<div class="night">
+  <div class="wrap">
+    <header class="site-head">
+      <a class="brand" href="../index.html" aria-label="Sync and Send, home">
+        <span class="wordmark">Sync <span class="amp">&amp;</span> Send</span>
+        <span class="byline">by Richard Tuharsky</span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="../index.html#checklist">Checklist</a>
+        <a href="../index.html#articles">Articles</a>
+        <a href="../index.html#about">About</a>
+        <a class="nav-cta" href="#subscribe">Subscribe</a>
+      </nav>
+    </header>
+
+    <div class="masthead" id="top">
+      <nav aria-label="Breadcrumb" class="crumbs">
+        <ol>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../index.html#articles">Articles</a></li>
+          <li><span aria-current="page">Data 360 troubleshooting</span></li>
+        </ol>
+      </nav>
+      <p class="stop-tag">Stop 1: Data foundations. Data 360 and Salesforce CRM</p>
+      <h1>Data 360 Is Connected, but CRM Data Won't Load: A Troubleshooting Guide</h1>
+      <p class="dek">A practical guide to finding where Salesforce CRM data stops reaching Data 360.</p>
+      <p class="meta"><span>By <strong>Richard Tuharsky</strong></span><span>9 min read</span><span>8 stages</span><span>Documentation checked 31 October 2026</span></p>
+    </div>
+  </div>
+</div>
+
+<div class="wrap layout">
+  <aside class="toc" aria-labelledby="toc-title">
+    <p class="toc-title" id="toc-title">In this guide</p>
+    <ol>
+      <li><a href="#start">Find your starting point</a></li>
+      <li><a href="#stage-1"><span class="num">Stage 01</span>Capture the actual failure</a></li>
+      <li><a href="#stage-2"><span class="num">Stage 02</span>Verify the correct CRM connection</a></li>
+      <li><a href="#stage-3"><span class="num">Stage 03</span>Check source objects, fields and connector permissions</a></li>
+      <li><a href="#stage-4"><span class="num">Stage 04</span>Check Data Kit deployment dependencies</a></li>
+      <li><a href="#stage-5"><span class="num">Stage 05</span>Check whether the stream is batch or streaming</a></li>
+      <li><a href="#stage-6"><span class="num">Stage 06</span>Trace a record through the DLO and DMO</a></li>
+      <li><a href="#stage-7"><span class="num">Stage 07</span>Recover, then verify a real update</a></li>
+      <li><a href="#stage-8"><span class="num">Stage 08</span>Record ownership or escalate with evidence</a></li>
+      <li><a href="#resolved">What "resolved" should mean</a></li>
+    </ol>
+  </aside>
+
+  <article class="article">
+    <details class="toc-mobile">
+      <summary>In this guide</summary>
+      <ol>
+        <li><a href="#start">Find your starting point</a></li>
+        <li><a href="#stage-1">Capture the actual failure</a></li>
+        <li><a href="#stage-2">Verify the correct CRM connection</a></li>
+        <li><a href="#stage-3">Check source objects, fields and connector permissions</a></li>
+        <li><a href="#stage-4">Check Data Kit deployment dependencies</a></li>
+        <li><a href="#stage-5">Check whether the stream is batch or streaming</a></li>
+        <li><a href="#stage-6">Trace a record through the DLO and DMO</a></li>
+        <li><a href="#stage-7">Recover, then verify a real update</a></li>
+        <li><a href="#stage-8">Record ownership or escalate with evidence</a></li>
+        <li><a href="#resolved">What "resolved" should mean</a></li>
+      </ol>
+    </details>
+
+    <div class="intro">
+      <p>An active CRM connection is one checkpoint. You still need to establish that the connector can read the source, the data stream is processing, and the required data reaches the model used by your business.</p>
+      <p>This guide covers the Salesforce CRM connector into Data 360, including Sales Cloud and Service Cloud data and issues following a Data Kit deployment. Marketing Cloud Connect for SFMC Engagement is a separate integration.</p>
+      <p>You'll need access to the affected Data 360 stream, a CRM administrator who can inspect source objects and connector permissions, and one record you can safely use for validation. Some screens and permission-set names still use "Data Cloud".</p>
+    </div>
+
+    <section class="block" id="start" aria-labelledby="start-title">
+      <h2 id="start-title">Find your starting point</h2>
+      <div class="table-box">
+        <table class="start-table">
+          <thead><tr><th scope="col">What you see</th><th scope="col">Start here</th></tr></thead>
+          <tbody>
+            <tr><td>A stream failed and you don't know why</td><td><a href="#stage-1">Stage 1: capture the error</a></td></tr>
+            <tr><td>Authentication or trust errors, particularly after a sandbox refresh</td><td><a href="#stage-2">Stage 2: verify the connection</a></td></tr>
+            <tr><td><code>INVALID_FIELD</code>, <code>INVALID_TYPE</code>, or missing source fields</td><td><a href="#stage-3">Stage 3: check source access</a></td></tr>
+            <tr><td>Failure immediately after a Data Kit deployment</td><td><a href="#stage-4">Stage 4: check deployment dependencies</a></td></tr>
+            <tr><td>Data arrives more slowly than expected</td><td><a href="#stage-5">Stage 5: check processing mode</a></td></tr>
+            <tr><td>Ingestion succeeds, but the required modeled data is missing</td><td><a href="#stage-6">Stage 6: inspect the DLO and DMO</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="block" id="stage-1" aria-labelledby="s1-title">
+      <p class="stage-label">Stage 01</p>
+      <h2 id="s1-title">Capture the actual failure</h2>
+      <p class="goal"><strong>Goal:</strong> identify the failing stream and operation before changing configuration.</p>
+      <ol class="steps">
+        <li>In Data 360, open <span class="path">Data Streams</span> and select the affected stream.</li>
+        <li>Open <span class="path">Refresh History</span>. Record the failed operation's timestamp, status, refresh mode and record statistics. Open its error details; download the log when available.</li>
+        <li>Note the source org, connection, object and last successful refresh. Check <a href="https://status.salesforce.com/">Salesforce Trust</a> for an incident affecting your service and instance at that time.</li>
+        <li>Record what changed before the failure: a sandbox refresh, deployment, field deletion or permissions change. Treat this as evidence to investigate, rather than proof of the cause.</li>
+      </ol>
+      <p class="pass"><span><strong>Passing result:</strong> you can name the failed operation and its exact error, or establish that no operation has started.</span></p>
+      <p class="resources"><span>Official resource</span><a href="https://help.salesforce.com/s/articleView?id=data.c360_a_datastream_dlo_refresh_history.htm&amp;language=en_US">Data Stream and Data Lake Object Refresh History</a></p>
+    </section>
+
+    <section class="block" id="stage-2" aria-labelledby="s2-title">
+      <p class="stage-label">Stage 02</p>
+      <h2 id="s2-title">Verify the correct CRM connection</h2>
+      <p class="goal"><strong>Goal:</strong> establish whether the connection's trust relationship is healthy.</p>
+      <ol class="steps">
+        <li>Open <span class="path">Setup → Data 360 Setup → Salesforce Integrations → Salesforce CRM</span>.</li>
+        <li>Locate the connection used by the failing stream. Open its row-action menu and select <span class="path">Verify Connection</span>.</li>
+        <li>Follow the result-specific instructions. If verification succeeds, continue to Stage 3. If reauthentication is required, use the documented procedure for that connection type.</li>
+      </ol>
+      <p class="note"><span>A sandbox refresh changes the sandbox Org ID and can break the existing trust relationship. Reauthentication can restore it. The recovery procedure differs for home-org, sandbox, other production/development and Data 360 One companion connections.</span></p>
+      <p class="note warn"><span>Don't disconnect a production connection as a generic troubleshooting step. First identify which recovery path applies and which streams or targets depend on it.</span></p>
+      <p class="pass"><span><strong>Passing result:</strong> the intended source org is verified and authenticated. Data access and ingestion still need their own checks.</span></p>
+      <p class="resources"><span>Official resource</span><a href="https://help.salesforce.com/s/articleView?id=data.c360_a_verify_and_reauthenticate_a_salesforce_crm_connection.htm&amp;language=en_US&amp;type=5">Verify and Reauthenticate a Salesforce CRM Connection</a></p>
+    </section>
+
+    <section class="block" id="stage-3" aria-labelledby="s3-title">
+      <p class="stage-label">Stage 03</p>
+      <h2 id="s3-title">Check source objects, fields and connector permissions</h2>
+      <p class="goal"><strong>Goal:</strong> prove the connector has access to the schema required by the stream.</p>
+      <ol class="steps">
+        <li>In the source CRM org, open <span class="path">Setup → Object Manager</span>. Find the object and field API names from the error log and confirm they still exist.</li>
+        <li>Open <span class="path">Setup → Permission Sets → Data Cloud Salesforce Connector → Object Settings</span>. Have the CRM administrator check the required object and field access, including related objects referenced by lookup fields. Salesforce documents Read, View All Records and View All Fields requirements; review the scope before changing access.</li>
+        <li>Review <span class="path">Setup → View Setup Audit Trail</span> around the first failure. Look for deleted fields, changed permissions or removal of the connector permission-set assignment.</li>
+      </ol>
+      <p class="note"><span>The connector uses the Platform Integration User. A human administrator being able to see a field does not establish that the connector can read it.</span></p>
+      <p>For a deliberately deleted field, follow Salesforce's procedure to disable the obsolete stream field and review its downstream dependencies. For lost access, restore the required, approved access.</p>
+      <p class="pass"><span><strong>Passing result:</strong> the required schema exists and the connector has the documented access to it.</span></p>
+      <p class="resources"><span>Official resources</span><a href="https://help.salesforce.com/s/articleView?id=000395797&amp;language=en_US&amp;type=1">CRM refresh errors caused by missing fields or objects</a><a href="https://help.salesforce.com/s/articleView?id=sf.c360_a_enable_user_permissions_external_salesforce_org.htm&amp;language=en_US&amp;type=5">Salesforce CRM permissions</a></p>
+    </section>
+
+    <section class="block" id="stage-4" aria-labelledby="s4-title">
+      <p class="stage-label">Stage 04</p>
+      <h2 id="s4-title">Check Data Kit deployment dependencies</h2>
+      <p class="goal">Use this stage when the issue started after a deployment. Otherwise, continue to <a href="#stage-5">Stage 5</a>.</p>
+      <ol class="steps">
+        <li>Confirm the target org has the intended CRM connection and every source object and field referenced by the stream.</li>
+        <li>Review the kit's dependencies and publishing sequence, including required DMOs, fields and relationships. For sandbox-to-production change sets, confirm the kit is the supported DevOps type.</li>
+        <li>Inspect the deployed connector and stream states. Follow Salesforce's post-deployment activation procedure; where connector activation is required before CRM streams can deploy, complete that step before the documented redeployment.</li>
+      </ol>
+      <p class="note"><span>A successful metadata deployment does not establish that ingestion has started. Verify both separately.</span></p>
+      <p class="pass"><span><strong>Passing result:</strong> the dependencies and connection are available, the stream is deployed, and its ingestion state is understood.</span></p>
+      <p class="resources"><span>Official resources</span><a href="https://help.salesforce.com/s/articleView?id=sf.c360_a_install_package_kit.htm&amp;language=en_US&amp;type=5">Create a Data Stream from a Data Kit</a><a href="https://help.salesforce.com/s/articleView?id=004811292&amp;language=en_US&amp;type=1">Data Kit considerations and common issues</a><a href="https://trailhead.salesforce.com/content/learn/modules/data-360-sandboxes/deploy-and-validate-your-data-360-configurations">Post-deployment validation</a></p>
+    </section>
+
+    <section class="block" id="stage-5" aria-labelledby="s5-title">
+      <p class="stage-label">Stage 05</p>
+      <h2 id="s5-title">Check whether the stream is batch or streaming</h2>
+      <p class="goal"><strong>Goal:</strong> distinguish an ingestion failure from a processing mode that doesn't meet your freshness requirement.</p>
+      <ol class="steps">
+        <li>Open the stream's record page and inspect <span class="path">Frequency</span> to identify its processing mode.</li>
+        <li>If you expected streaming, check eligibility. Initial ingestion uses batch processing. Unsupported objects or batch-ingested fields, including some formula fields, can prevent streaming.</li>
+        <li>Compare the actual refresh history with the agreed data-freshness window. Investigate missing or failed runs separately from processing latency.</li>
+      </ol>
+      <p class="note warn"><span>The Data Cloud Salesforce Connector permission set is intended for the Platform Integration User. Salesforce warns that assigning other users to it can interfere with streaming permissions; don't use it as a general human-user access role.</span></p>
+      <p class="pass"><span><strong>Passing result:</strong> you know the actual processing mode and whether observed timing is expected, failing or unsuitable for the use case.</span></p>
+      <p class="resources"><span>Official resources</span><a href="https://help.salesforce.com/s/articleView?id=data.c360_a_crm_connector_streaming.htm&amp;language=en_US&amp;type=5">CRM Connector Streaming</a><a href="https://help.salesforce.com/s/articleView?id=data.c360_a_data_stream_schedule.htm&amp;language=en_US&amp;type=5">Data Stream Schedule</a></p>
+    </section>
+
+    <section class="block" id="stage-6" aria-labelledby="s6-title">
+      <p class="stage-label">Stage 06</p>
+      <h2 id="s6-title">Trace a record through the DLO and DMO</h2>
+      <p class="goal"><strong>Goal:</strong> locate the boundary between missing source data and missing modeled data.</p>
+      <p>A Data Lake Object (DLO) holds ingested data. A Data Model Object (DMO) represents mapped data in the customer data model.</p>
+      <ol class="steps">
+        <li>Open <span class="path">Data Explorer</span>. Select the correct data space, choose the DLO and filter for your validation record using its source identifier.</li>
+        <li>Check the relevant source values. Then select the intended DMO and inspect the corresponding mapped values, accounting for the configured identifiers and relationships.</li>
+        <li>If the DLO contains the expected data but the DMO does not, open the stream's <span class="path">Data Mapping</span> section and review its field mappings and relationships.</li>
+        <li>Use the observed stopping point to choose the next investigation. Missing DLO data leads back to ingestion; missing modeled data leads to mapping checks. If both are correct, investigate the specific identity-resolution, segmentation or activation step that consumes them.</li>
+      </ol>
+      <p class="pass"><span><strong>Passing result:</strong> the validation record and required values are present at each boundary you have checked.</span></p>
+      <p class="resources"><span>Official resources</span><a href="https://help.salesforce.com/s/articleView?id=data.c360_a_view_your_data.htm&amp;language=en_US&amp;type=5">View Your Data in Data Explorer</a><a href="https://help.salesforce.com/s/articleView?id=data.c360_a_map_custom_data_model_objects.htm&amp;language=en_US&amp;type=5">Map Data Model Objects</a></p>
+    </section>
+
+    <section class="block" id="stage-7" aria-labelledby="s7-title">
+      <p class="stage-label">Stage 07</p>
+      <h2 id="s7-title">Recover, then verify a real update</h2>
+      <p class="goal"><strong>Goal:</strong> demonstrate that data moves correctly after the identified issue is resolved.</p>
+      <ol class="steps">
+        <li>Apply the correction supported by your evidence. If a refresh is required, use <span class="path">Refresh Now</span> for the affected stream and the refresh mode appropriate to its documented behavior.</li>
+        <li>Monitor the resulting operation. A full refresh replaces destination data and can process substantial volume. Some on-demand requests are ignored or handled differently depending on the stream's current state; avoid repeated clicks or overlapping recovery attempts.</li>
+        <li>Make an approved, reversible update to a validation record. Record the source time, confirm the value reaches the DLO and intended DMO, then verify the downstream business action within its agreed window.</li>
+      </ol>
+      <p class="note"><span>Example validation: a test customer's approved status change reaches the model used by a renewal audience. Check the resulting audience membership as a separate step, rather than treating a successful ingestion as proof that the campaign is ready.</span></p>
+      <p class="pass"><span><strong>Passing result:</strong> the expected value reaches the intended destination, required fields are complete, and no new relevant errors appear during the validation window.</span></p>
+      <p class="resources"><span>Official resources</span><a href="https://help.salesforce.com/s/articleView?id=data.c360_a_crm_data_refresh_process_for_extraction.htm&amp;language=en_US&amp;type=5">Data Refresh Process for Extraction</a><a href="https://help.salesforce.com/s/articleView?id=c360_a_data_mapping.htm&amp;language=en_US&amp;type=5">Data Mapping</a></p>
+    </section>
+
+    <section class="block" id="stage-8" aria-labelledby="s8-title">
+      <p class="stage-label">Stage 08</p>
+      <h2 id="s8-title">Record ownership or escalate with evidence</h2>
+      <p class="goal"><strong>Goal:</strong> leave a recoverable workflow and a useful investigation record.</p>
+      <ol class="steps">
+        <li>Document the confirmed cause, correction, validation result and workflow owner. Record the expected freshness window and how exceptions will be noticed.</li>
+        <li>If the cause remains unresolved, open a Salesforce Support case with the affected org and connection, stream/object identifiers, exact errors, timestamps with time zones, recent changes and steps already attempted.</li>
+        <li>Include a minimal reproduction and a redacted example where permitted. Keep credentials, access tokens and unnecessary customer data out of attachments.</li>
+      </ol>
+      <p class="note"><span>Describe an unresolved failure as an observed symptom. Call it a confirmed defect only when you have supporting confirmation.</span></p>
+      <p class="pass"><span><strong>Passing result:</strong> the workflow has an owner and a recovery record, or Support has enough evidence to investigate the remaining failure.</span></p>
+      <p class="resources"><span>Official resources</span><a href="https://help.salesforce.com/s/articleView?id=000232342&amp;language=en_US&amp;type=1">Create a Support Case</a><a href="https://help.salesforce.com/s/articleView?id=data.c360_a_refresh_history.htm&amp;language=en_US&amp;type=5">Troubleshooting CRM Connections</a></p>
+    </section>
+
+    <section class="block" id="resolved" aria-labelledby="resolved-title">
+      <h2 id="resolved-title">What "resolved" should mean</h2>
+      <p>Use these recommended acceptance checks for the workflow you're repairing:</p>
+      <ul class="resolved">
+        <li><input type="checkbox" id="r1"><label for="r1">The intended source connection is verified.</label></li>
+        <li><input type="checkbox" id="r2"><label for="r2">Required objects and fields are accessible to the connector.</label></li>
+        <li><input type="checkbox" id="r3"><label for="r3">The stream completes the required operation successfully.</label></li>
+        <li><input type="checkbox" id="r4"><label for="r4">A controlled source update appears correctly in the DLO and intended DMO.</label></li>
+        <li><input type="checkbox" id="r5"><label for="r5">The required downstream audience or action uses the correct data.</label></li>
+        <li><input type="checkbox" id="r6"><label for="r6">Freshness, ownership and recovery expectations are documented.</label></li>
+      </ul>
+    </section>
+
+    <div class="article-end">
+      <a href="../index.html#articles">Back to all articles</a>
+      <a href="#top">Back to top</a>
+    </div>
+  </article>
+</div>
+
+<div class="night">
+  <div class="wrap">
+    <section class="closing" id="subscribe" aria-labelledby="subscribe-title">
+      <div class="closing-copy">
+        <h2 id="subscribe-title">Get the next guide by email</h2>
+        <p>Practical troubleshooting for CRM, Data 360 and Marketing Cloud data, plus the Automation Reliability Checklist when you join.</p>
+      </div>
+      <form class="signup" id="signup-article" novalidate>
+        <label for="email-article">Email address</label>
+        <div class="signup-row">
+          <input id="email-article" type="email" name="email_address" autocomplete="email" placeholder="name@company.com" required>
+          <button type="submit">Subscribe</button>
+        </div>
+        <p class="status" role="status" aria-live="polite"></p>
+        <p class="consent">Unsubscribe anytime. <a href="#privacy" data-open-privacy>Privacy</a></p>
+      </form>
+    </section>
+
+    <footer class="site-foot">
+      <div class="foot-row">
+        <span>&copy; 2026 Richard Tuharsky</span>
+        <span>Salesforce, Marketing Cloud, Sales Cloud, Service Cloud and Data 360 are trademarks of Salesforce, Inc. Braze is a trademark of Braze, Inc. This site is independent and not affiliated with or endorsed by Salesforce or Braze.</span>
+      </div>
+      <details id="privacy">
+        <summary>Privacy</summary>
+        <p>When you sign up, I store your email address to send you the checklist and new issues of Sync &amp; Send. Emails are sent through Kit, my email provider, which stores your address on my behalf.</p>
+        <p>You can unsubscribe from any email with one click, or ask me to delete your data by writing to [YOUR CONTACT EMAIL].</p>
+      </details>
+    </footer>
+  </div>
+</div>
+
+<script>
+  // Paste the action URL from your Kit form's HTML embed code to make the form live.
+  const KIT_FORM_ACTION = "";
+
+  document.querySelectorAll("form.signup").forEach((form) => {
+    const input = form.querySelector('input[type="email"]');
+    const status = form.querySelector(".status");
+    form.addEventListener("submit", (event) => {
+      const value = input.value.trim();
+      if (!value || !input.checkValidity()) {
+        event.preventDefault();
+        input.setAttribute("aria-invalid", "true");
+        status.dataset.tone = "error";
+        status.textContent = "Enter an email address, like name@company.com.";
+        input.focus();
+        return;
+      }
+      input.removeAttribute("aria-invalid");
+      if (KIT_FORM_ACTION) {
+        form.action = KIT_FORM_ACTION;
+        form.method = "post";
+        return;
+      }
+      event.preventDefault();
+      status.dataset.tone = "info";
+      status.textContent = "Sign-up isn't connected yet. Add the Kit form URL to go live.";
+    });
+    input.addEventListener("input", () => {
+      input.removeAttribute("aria-invalid");
+      if (status.dataset.tone === "error") { status.textContent = ""; status.dataset.tone = ""; }
+    });
+  });
+
+  document.querySelectorAll("[data-open-privacy]").forEach((link) => {
+    link.addEventListener("click", () => {
+      const details = document.getElementById("privacy");
+      if (details) details.open = true;
+    });
+  });
+</script>
+</body>
+</html>

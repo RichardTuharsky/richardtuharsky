@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sync &amp; Send</title>
+<meta name="description" content="Sync &amp; Send by Richard Tuharsky: practical notes on customer data, marketing automation and marketing-to-sales handoffs.">
+<meta property="og:title" content="Sync &amp; Send">
+<meta property="og:description" content="Practical notes on customer data, automation and marketing-to-sales handoffs.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314213D'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-style='italic' font-size='40' text-anchor='middle' fill='%23FFB703'%3E%26%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap">
+<!--
+  TO GO LIVE
+  1. In Kit, open your form's HTML embed code and copy the form's action URL.
+  2. Paste it into KIT_FORM_ACTION in the script at the bottom of this file.
+  3. Check the email input name matches Kit's embed code (set to "email_address" here).
+  4. Replace [YOUR CONTACT EMAIL] in the Privacy section.
+-->
+<style>
+:root {
+  /* Layout: navy night band (header, hero, departures board) over a paper middle, closing on a navy band */
+  --night: #14213D;
+  --board: #0C1630;
+  --board-rule: #24345A;
+  --paper: #F5F6F2;
+  --ink: #14213D;
+  --muted: #4E5A70;
+  --rule: #D3D7DE;
+  --on-night: #FFFFFF;
+  --on-night-soft: #D5DCE8;
+  --on-night-muted: #AEB8CC;
+  --signal: #FFB703;
+  --line-1: #FF5D73;
+  --line-2: #FFB703;
+  --line-3: #2EC4B6;
+  --line-4: #8C7CFF;
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --wrap: 72rem;
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.62; }
+h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+p { margin: 0; }
+a { color: inherit; text-underline-offset: 0.18em; }
+:focus-visible { outline: 3px solid var(--signal); outline-offset: 3px; border-radius: 4px; }
+.wrap { max-width: var(--wrap); margin-inline: auto; padding-inline: var(--gutter); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* Night band */
+.night { background: var(--night); color: var(--on-night); }
+.site-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 2rem; padding-block: 1.4rem; }
+.brand { display: flex; flex-direction: column; gap: 0.2rem; text-decoration: none; color: var(--on-night); }
+.wordmark { font-family: var(--font-display); font-variation-settings: "wdth" 125; font-weight: 850; font-size: 1.375rem; line-height: 1; letter-spacing: -0.01em; }
+.wordmark .amp { font-family: var(--font-body); font-style: italic; font-weight: 500; color: var(--signal); }
+.byline { font-family: var(--font-display); font-size: 0.875rem; color: var(--on-night-muted); }
+.site-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1.25rem; font-family: var(--font-display); font-size: 0.9375rem; }
+.site-nav a { display: inline-flex; align-items: center; min-height: 44px; color: #E8ECF4; text-decoration: none; }
+.site-nav a:hover { text-decoration: underline; }
+.site-nav .nav-cta { padding: 0 1.1rem; border-radius: 999px; background: var(--signal); color: var(--night); font-weight: 700; }
+.site-nav .nav-cta:hover { text-decoration: none; filter: brightness(1.06); }
+
+.hero { display: flex; flex-wrap: wrap; align-items: center; gap: 3rem 3.5rem; padding-block: clamp(1.75rem, 5vw, 4rem) clamp(2.5rem, 5vw, 3.5rem); }
+
+/* Platforms row */
+.platforms { display: flex; flex-direction: column; gap: 1rem; padding-block: 1.5rem 2.25rem; border-top: 1px solid var(--board-rule); }
+.platforms-title { font-weight: 650; font-size: 0.875rem; color: var(--on-night-muted); }
+.platform-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: 1rem 1.5rem; }
+.platform { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+.p-icon { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 12px; background: var(--board); border: 1px solid var(--board-rule); display: grid; place-items: center; color: var(--signal); }
+.p-icon svg { width: 22px; height: 22px; }
+.p-text { display: flex; flex-direction: column; min-width: 0; font-family: var(--font-display); }
+.p-name { font-weight: 700; font-size: 0.9375rem; line-height: 1.25; color: #FFFFFF; }
+.p-desc { font-size: 0.8125rem; line-height: 1.35; color: var(--on-night-muted); }
+.hero-copy { flex: 1 1 30rem; min-width: 0; display: flex; flex-direction: column; gap: 1.5rem; }
+.hero h1 { font-variation-settings: "wdth" 125; font-weight: 880; font-size: clamp(2.25rem, 5vw, 4.5rem); line-height: 0.98; letter-spacing: -0.03em; }
+.lede { font-size: clamp(1.125rem, 1.7vw, 1.25rem); line-height: 1.55; max-width: 32.5rem; color: var(--on-night-soft); }
+
+/* Signup forms */
+.signup { display: flex; flex-direction: column; gap: 0.6rem; max-width: 32.5rem; }
+.signup label { font-family: var(--font-display); font-weight: 600; font-size: 0.875rem; }
+.signup-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.signup input[type="email"] { flex: 1 1 14rem; min-width: 0; min-height: 50px; font-family: var(--font-display); font-size: 1rem; padding: 0.75rem 1rem; border: 2px solid transparent; border-radius: 10px; background: #FFFFFF; color: var(--ink); }
+.signup input[type="email"]::placeholder { color: #6B7588; }
+.signup input[aria-invalid="true"] { border-color: var(--line-1); }
+.signup button { flex: 0 0 auto; min-height: 50px; font-family: var(--font-display); font-weight: 750; font-size: 1rem; padding: 0.75rem 1.4rem; border: 0; border-radius: 10px; cursor: pointer; }
+.signup button:hover { filter: brightness(1.06); }
+.btn-signal { background: var(--signal); color: var(--night); }
+.btn-night { background: var(--night); color: #FFFFFF; }
+.consent { font-family: var(--font-display); font-size: 0.8125rem; line-height: 1.5; }
+.status { font-family: var(--font-display); font-size: 0.875rem; font-weight: 600; min-height: 1.3em; }
+.on-night .signup label { color: #E8ECF4; }
+.on-night .consent, .on-night .consent a { color: var(--on-night-muted); }
+.on-night .status[data-tone="error"] { color: #FF8A9A; }
+.on-night .status[data-tone="info"] { color: var(--signal); }
+.on-ticket .status[data-tone="error"], .on-ticket .status[data-tone="info"] { color: var(--ink); }
+
+/* Departures board */
+.board { flex: 1 1 27.5rem; min-width: 0; background: var(--board); border: 1px solid var(--board-rule); border-radius: 16px; padding: 1.4rem clamp(1.1rem, 2.4vw, 1.6rem); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6); font-family: var(--font-display); }
+.board-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.25rem 1rem; padding-bottom: 0.9rem; border-bottom: 2px solid var(--board-rule); }
+.board-head h2 { font-variation-settings: "wdth" 112; font-weight: 750; font-size: 1.125rem; color: #FFFFFF; }
+.board-head span { font-size: 0.8125rem; color: var(--on-night-muted); }
+.board table { width: 100%; border-collapse: collapse; }
+.board th { text-align: left; font-weight: 600; font-size: 0.75rem; color: var(--on-night-muted); padding: 0.75rem 1rem 0.4rem 0; }
+.board th:first-child { width: 4.5rem; }
+.board tbody tr { border-top: 1px solid var(--board-rule); }
+.board tbody tr:last-child { border-bottom: 1px solid var(--board-rule); }
+.board td { padding: 0.9rem 0; vertical-align: top; }
+.board td.time { padding-right: 1rem; font-weight: 800; font-size: 1.375rem; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--signal); }
+.board .row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.15rem 1rem; }
+.board .step { font-weight: 650; font-size: 1.0625rem; color: #FFFFFF; }
+.board .state { font-weight: 600; font-size: 0.875rem; }
+.state.late { color: var(--line-2); }
+.state.ok { color: var(--line-3); }
+.state.missed { color: var(--line-1); }
+.board-note { margin-top: 1rem; display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.875rem; line-height: 1.5; color: var(--on-night-soft); }
+.board-note::before { content: ""; flex: 0 0 auto; margin-top: 0.32rem; width: 10px; height: 10px; border-radius: 50%; background: var(--line-1); }
+
+/* Paper sections */
+.section { padding-block: clamp(3.5rem, 8vw, 6.5rem); }
+.section + .section { border-top: 1px solid var(--rule); }
+.section-head { display: flex; flex-direction: column; gap: 0.75rem; max-width: 44rem; margin-bottom: clamp(2.25rem, 5vw, 3.5rem); }
+.section-head h2, .big-h2 { font-variation-settings: "wdth" 125; font-weight: 850; font-size: clamp(1.875rem, 4vw, 3rem); line-height: 1; letter-spacing: -0.025em; }
+.section-head p { color: var(--muted); max-width: 37.5rem; }
+
+/* Route */
+.route { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14.5rem), 1fr)); gap: 3rem 0; }
+.stop { position: relative; padding: 3.75rem 1.75rem 0 0; min-width: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.stop::before { content: ""; position: absolute; top: 15px; left: 0; right: 0; height: 10px; background: var(--line); }
+.stop-num { position: absolute; top: 0; left: 0; width: 40px; height: 40px; border-radius: 50%; background: #FFFFFF; border: 5px solid var(--ink); display: grid; place-items: center; font-family: var(--font-display); font-weight: 850; font-size: 0.9375rem; }
+.stop h3 { font-variation-settings: "wdth" 112; font-weight: 750; font-size: 1.3125rem; line-height: 1.15; }
+.stop p { font-size: 1rem; }
+.stop .symptom { font-size: 0.9375rem; color: var(--muted); }
+.stop .symptom strong { font-family: var(--font-display); font-weight: 700; color: var(--ink); }
+
+/* Checklist ticket */
+.magnet { display: flex; flex-wrap: wrap; align-items: center; gap: 2.5rem 4rem; }
+.magnet-copy { flex: 1 1 20rem; min-width: 0; display: flex; flex-direction: column; gap: 0.9rem; }
+.magnet-copy p { color: var(--muted); }
+.ticket { flex: 1.5 1 28.75rem; min-width: 0; position: relative; background: var(--signal); color: var(--ink); border-radius: 18px; box-shadow: 0 24px 48px -28px rgba(20, 33, 61, 0.55); }
+.ticket-main { padding: 1.5rem clamp(1.25rem, 3vw, 2rem) 0.25rem; }
+.ticket-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.25rem 1rem; font-family: var(--font-display); font-size: 0.875rem; }
+.ticket-top strong { font-weight: 750; }
+.ticket-top span { font-weight: 600; }
+.ticket-title { margin: 0.6rem 0 0.25rem; font-family: var(--font-display); font-variation-settings: "wdth" 125; font-weight: 880; font-size: clamp(1.5rem, 2.6vw, 2rem); line-height: 1.04; letter-spacing: -0.02em; }
+.ticket-sub { margin-bottom: 0.75rem; font-family: var(--font-display); font-size: 0.875rem; font-weight: 600; }
+.check { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.7rem 0; border-top: 1.5px solid rgba(20, 33, 61, 0.28); font-size: 1rem; line-height: 1.45; cursor: pointer; }
+.check input { flex: 0 0 auto; width: 18px; height: 18px; margin: 0.2rem 0 0; accent-color: var(--ink); cursor: pointer; }
+.check strong { font-family: var(--font-display); }
+.perforation { position: relative; height: 0; margin-top: 1.4rem; border-top: 3px dashed rgba(20, 33, 61, 0.5); }
+.perforation::before, .perforation::after { content: ""; position: absolute; top: -18px; width: 32px; height: 32px; border-radius: 50%; background: var(--paper); }
+.perforation::before { left: -16px; }
+.perforation::after { right: -16px; }
+.ticket-stub { padding: 1.5rem clamp(1.25rem, 3vw, 2rem) 1.6rem; }
+.on-ticket .consent, .on-ticket .consent a { color: var(--ink); }
+
+/* Articles */
+.arrivals { margin: 0; padding: 0; list-style: none; border-bottom: 1px solid var(--rule); }
+.arrival { border-top: 1px solid var(--rule); padding-block: 1.5rem; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.75rem 1.75rem; }
+.badge { flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%; background: var(--line); display: grid; place-items: center; font-family: var(--font-display); font-weight: 850; font-size: 0.9375rem; color: var(--ink); }
+.arrival-title { flex: 1 1 16rem; min-width: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.arrival-title h3 { font-variation-settings: "wdth" 108; font-weight: 750; font-size: 1.25rem; line-height: 1.2; }
+.arrival-title h3 a { text-decoration: none; }
+.arrival-title h3 a:hover { text-decoration: underline; }
+.arrival-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.75rem; font-family: var(--font-display); font-size: 0.8125rem; color: var(--muted); }
+.pill { display: inline-flex; align-items: center; padding: 0.1rem 0.6rem; border-radius: 999px; font-weight: 700; font-size: 0.75rem; }
+.pill.next { background: var(--night); color: #FFFFFF; }
+.pill.soon { background: transparent; color: var(--muted); border: 1.5px solid var(--rule); }
+.arrival > p { flex: 1.3 1 21rem; min-width: 0; color: var(--muted); }
+
+/* About */
+.about { display: flex; flex-wrap: wrap; align-items: center; gap: 2rem 3.5rem; }
+.interchange { flex: 0 0 auto; position: relative; width: 168px; height: 168px; }
+.interchange span { position: absolute; left: 0; top: 78px; width: 168px; height: 12px; border-radius: 6px; }
+.interchange span:nth-child(1) { background: var(--line-1); }
+.interchange span:nth-child(2) { background: var(--line-2); transform: rotate(45deg); }
+.interchange span:nth-child(3) { background: var(--line-3); transform: rotate(90deg); }
+.interchange span:nth-child(4) { background: var(--line-4); transform: rotate(135deg); }
+.interchange b { position: absolute; left: 32px; top: 32px; width: 104px; height: 104px; border-radius: 50%; background: #FFFFFF; border: 8px solid var(--ink); display: grid; place-items: center; font-family: var(--font-display); font-variation-settings: "wdth" 125; font-weight: 880; font-size: 1.75rem; letter-spacing: -0.03em; }
+.about-body { flex: 1 1 20rem; min-width: 0; max-width: 40rem; display: flex; flex-direction: column; gap: 1rem; }
+.about-body .fine { font-size: 0.9375rem; color: var(--muted); }
+
+/* Closing band */
+.closing { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 2rem 4rem; padding-block: clamp(3.5rem, 8vw, 6.5rem) clamp(2.5rem, 6vw, 4.5rem); }
+.closing-copy { flex: 1 1 23.75rem; min-width: 0; display: flex; flex-direction: column; gap: 0.9rem; }
+.closing h2 { font-variation-settings: "wdth" 125; font-weight: 880; font-size: clamp(2.25rem, 5vw, 4rem); line-height: 0.98; letter-spacing: -0.03em; }
+.closing-copy p { color: var(--on-night-soft); }
+.closing .signup { flex: 1 1 23.75rem; }
+.site-foot { border-top: 1px solid var(--board-rule); padding-block: 1.75rem 2.75rem; display: flex; flex-direction: column; gap: 1rem; font-family: var(--font-display); font-size: 0.875rem; color: var(--on-night-muted); }
+.foot-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem; }
+.foot-row span:last-child { max-width: 40rem; }
+.site-foot details { max-width: 44rem; }
+.site-foot summary { cursor: pointer; color: #FFFFFF; font-weight: 600; width: max-content; }
+.site-foot details[open] summary { margin-bottom: 0.6rem; }
+.site-foot details p { font-family: var(--font-body); font-size: 0.9375rem; line-height: 1.55; color: var(--on-night-soft); margin-bottom: 0.6rem; }
+
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<div class="night">
+  <div class="wrap">
+    <header class="site-head">
+      <a class="brand" href="#top" aria-label="Sync and Send, home">
+        <span class="wordmark">Sync <span class="amp">&amp;</span> Send</span>
+        <span class="byline">by Richard Tuharsky</span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="#checklist">Checklist</a>
+        <a href="#articles">Articles</a>
+        <a href="#about">About</a>
+        <a class="nav-cta" href="#subscribe">Subscribe</a>
+      </nav>
+    </header>
+
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero-copy on-night">
+        <h1 id="hero-title">Your campaign is only as fresh as the data behind it.</h1>
+        <p class="lede">Practical notes on customer data, automation and marketing-to-sales handoffs, for the people who keep marketing and CRM systems running.</p>
+        <form class="signup" id="signup-hero" novalidate>
+          <label for="email-hero">Get the Automation Reliability Checklist</label>
+          <div class="signup-row">
+            <input id="email-hero" type="email" name="email_address" autocomplete="email" placeholder="name@company.com" required>
+            <button class="btn-signal" type="submit">Get the checklist</button>
+          </div>
+          <p class="status" role="status" aria-live="polite"></p>
+          <p class="consent">You'll also get new issues of Sync &amp; Send. Unsubscribe anytime. <a href="#privacy" data-open-privacy>Privacy</a></p>
+        </form>
+      </div>
+
+      <div class="board">
+        <div class="board-head">
+          <h2 id="board-title">Overnight departures</h2>
+          <span>An example run</span>
+        </div>
+        <table aria-labelledby="board-title">
+          <thead><tr><th scope="col">Time</th><th scope="col">Step and status</th></tr></thead>
+          <tbody>
+            <tr><td class="time">02:00</td><td><div class="row"><span class="step">CRM data sync</span><span class="state late">Delayed, arrived 02:41</span></div></td></tr>
+            <tr><td class="time">02:20</td><td><div class="row"><span class="step">Audience query</span><span class="state late">Left before the sync arrived</span></div></td></tr>
+            <tr><td class="time">03:00</td><td><div class="row"><span class="step">Journey entry</span><span class="state ok">On time, with yesterday's audience</span></div></td></tr>
+            <tr><td class="time">08:00</td><td><div class="row"><span class="step">Email send</span><span class="state ok">On time</span></div></td></tr>
+            <tr><td class="time">09:00</td><td><div class="row"><span class="step">Sales follow-up</span><span class="state missed">Missed connection: new leads</span></div></td></tr>
+          </tbody>
+        </table>
+        <p class="board-note">Every step reported success. Yesterday's sign-ups still missed the trip.</p>
+      </div>
+    </section>
+
+    <section class="platforms" aria-labelledby="platforms-title">
+      <h2 id="platforms-title" class="platforms-title">Platforms covered here</h2>
+      <ul class="platform-list">
+        <li class="platform">
+          <span class="p-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 10.5 13.5"/><path d="M21 3 14.5 21l-4-7.5L3 9.5 21 3z"/></svg></span>
+          <span class="p-text"><span class="p-name">Marketing Cloud Engagement</span><span class="p-desc">Journeys, automations, data extensions</span></span>
+        </li>
+        <li class="platform">
+          <span class="p-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16.2c.6-1.6 1.8-2.4 3.2-2.4s2.6.8 3.2 2.4"/><path d="M14.5 10h4M14.5 13.5h3"/></svg></span>
+          <span class="p-text"><span class="p-name">Sales Cloud and Service Cloud</span><span class="p-desc">Leads, routing, Flow, handoffs</span></span>
+        </li>
+        <li class="platform">
+          <span class="p-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7" ry="2.8"/><path d="M5 5.5V12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8V5.5"/><path d="M5 12v6.5c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8V12"/></svg></span>
+          <span class="p-text"><span class="p-name">Data 360 and other CDPs</span><span class="p-desc">Ingestion, segments, activation</span></span>
+        </li>
+        <li class="platform">
+          <span class="p-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="11" height="19" rx="2.5"/><path d="M10 18.5h3"/><circle cx="18" cy="5.5" r="2.6" fill="currentColor" stroke="none"/></svg></span>
+          <span class="p-text"><span class="p-name">Braze</span><span class="p-desc">Data feeds, audiences, identifiers</span></span>
+        </li>
+      </ul>
+    </section>
+  </div>
+</div>
+
+<main class="wrap">
+  <section class="section" id="topics" aria-labelledby="topics-title">
+    <div class="section-head">
+      <h2 id="topics-title">The route</h2>
+      <p>Four stops between your customer data and a sale. Each one is a place campaigns go wrong, and each one is a topic here.</p>
+    </div>
+    <ol class="route">
+      <li class="stop" style="--line: var(--line-1)">
+        <span class="stop-num" aria-hidden="true">1</span>
+        <h3>Data foundations</h3>
+        <p>Where customer data originates, how it moves between CRM and marketing systems, and whether you can trust it when it gets there.</p>
+        <p class="symptom"><strong>Sounds familiar if</strong> records don't match between systems, or nobody can say which one is the source of truth.</p>
+      </li>
+      <li class="stop" style="--line: var(--line-2)">
+        <span class="stop-num" aria-hidden="true">2</span>
+        <h3>Usable audiences</h3>
+        <p>Segments that reflect today's customers. Queries and filters that stay correct as the data underneath them changes.</p>
+        <p class="symptom"><strong>Sounds familiar if</strong> audiences are rebuilt by hand or start life as a spreadsheet export.</p>
+      </li>
+      <li class="stop" style="--line: var(--line-3)">
+        <span class="stop-num" aria-hidden="true">3</span>
+        <h3>Dependable automation</h3>
+        <p>Scheduling dependencies, error handling, monitoring and recovery, so a failed step gets noticed and fixed before the send.</p>
+        <p class="symptom"><strong>Sounds familiar if</strong> automations fail quietly and campaigns go out late, or not at all.</p>
+      </li>
+      <li class="stop" style="--line: var(--line-4)">
+        <span class="stop-num" aria-hidden="true">4</span>
+        <h3>Marketing-to-sales handoffs</h3>
+        <p>Getting engaged leads into the CRM with the context a salesperson needs to act on them, and proving that it happened.</p>
+        <p class="symptom"><strong>Sounds familiar if</strong> sales says marketing leads never arrive, or arrive without context.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="section" id="checklist" aria-labelledby="checklist-title">
+    <div class="magnet">
+      <div class="magnet-copy">
+        <h2 id="checklist-title" class="big-h2">Check your automations before your customers do</h2>
+        <p>The Automation Reliability Checklist covers the places marketing automation usually breaks: scheduling, data freshness, alerts, pre-send checks, recovery and ownership. It's free when you subscribe.</p>
+      </div>
+      <div class="ticket">
+        <div class="ticket-main">
+          <div class="ticket-top"><strong>Admit one</strong><span>Valid on any marketing automation setup</span></div>
+          <p class="ticket-title">Automation Reliability Checklist</p>
+          <p class="ticket-sub">Six sample checks. Tick the ones you already pass.</p>
+          <label class="check" for="t1"><input type="checkbox" id="t1"><span><strong>Scheduling.</strong> Every automation that reads synced data starts after the sync completes, not at a guessed time.</span></label>
+          <label class="check" for="t2"><input type="checkbox" id="t2"><span><strong>Freshness.</strong> You can see when each key audience was last refreshed.</span></label>
+          <label class="check" for="t3"><input type="checkbox" id="t3"><span><strong>Alerts.</strong> A failed step alerts a named person, not a shared inbox.</span></label>
+          <label class="check" for="t4"><input type="checkbox" id="t4"><span><strong>Pre-send.</strong> A send stops or warns when its audience is empty or much smaller than usual.</span></label>
+          <label class="check" for="t5"><input type="checkbox" id="t5"><span><strong>Recovery.</strong> There's a written way to rerun a failed night without sending twice.</span></label>
+          <label class="check" for="t6"><input type="checkbox" id="t6"><span><strong>Ownership.</strong> Every automation has a named owner and a one-line description of what it's for.</span></label>
+        </div>
+        <div class="perforation" aria-hidden="true"></div>
+        <div class="ticket-stub on-ticket">
+          <form class="signup" id="signup-checklist" novalidate>
+            <label for="email-checklist">Email address</label>
+            <div class="signup-row">
+              <input id="email-checklist" type="email" name="email_address" autocomplete="email" placeholder="name@company.com" required>
+              <button class="btn-night" type="submit">Get the checklist</button>
+            </div>
+            <p class="status" role="status" aria-live="polite"></p>
+            <p class="consent">You'll also get new issues of Sync &amp; Send. Unsubscribe anytime. <a href="#privacy" data-open-privacy>Privacy</a></p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="articles" aria-labelledby="articles-title">
+    <div class="section-head">
+      <h2 id="articles-title">Next arrivals</h2>
+      <p>The first guide is out. Subscribe to get the rest when they're published.</p>
+    </div>
+    <ul class="arrivals">
+      <li class="arrival" style="--line: var(--line-1)">
+        <span class="badge" aria-hidden="true">1</span>
+        <div class="arrival-title">
+          <h3><a href="guides/data-360-crm-data-stream-troubleshooting.html">Data 360 is connected, but CRM data won't load</a></h3>
+          <p class="arrival-meta"><span class="pill next">New guide</span><span>Stop 1: Data foundations</span><span>9 min read</span></p>
+        </div>
+        <p>A step-by-step way to find where Sales and Service Cloud data stops on its way into Data 360, and how to prove the fix worked.</p>
+      </li>
+      <li class="arrival" style="--line: var(--line-2)">
+        <span class="badge" aria-hidden="true">2</span>
+        <div class="arrival-title">
+          <h3>Synced isn't the same as fresh</h3>
+          <p class="arrival-meta"><span class="pill soon">Coming up</span><span>Stop 2: Usable audiences</span></p>
+        </div>
+        <p>How to tell when your audience data last changed, and why a successful sync can still leave you with yesterday's customers.</p>
+      </li>
+      <li class="arrival" style="--line: var(--line-3)">
+        <span class="badge" aria-hidden="true">3</span>
+        <div class="arrival-title">
+          <h3>The automation that failed at 3am</h3>
+          <p class="arrival-meta"><span class="pill soon">Coming up</span><span>Stop 3: Dependable automation</span></p>
+        </div>
+        <p>Who finds out first when an overnight step breaks, and how to make sure it's you and not your customers.</p>
+      </li>
+      <li class="arrival" style="--line: var(--line-4)">
+        <span class="badge" aria-hidden="true">4</span>
+        <div class="arrival-title">
+          <h3>The lead nobody followed up</h3>
+          <p class="arrival-meta"><span class="pill soon">Coming up</span><span>Stop 4: Marketing-to-sales handoffs</span></p>
+        </div>
+        <p>Tracing one lead from form fill to sales task, and the places it usually disappears.</p>
+      </li>
+      <li class="arrival" style="--line: var(--line-1)">
+        <span class="badge" aria-hidden="true">1</span>
+        <div class="arrival-title">
+          <h3>One person, three IDs</h3>
+          <p class="arrival-meta"><span class="pill soon">Coming up</span><span>Stop 1: Data foundations</span></p>
+        </div>
+        <p>How duplicate records and mismatched identifiers creep in between CRM and marketing, and how to stop them.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="section" id="about" aria-labelledby="about-title">
+    <div class="about">
+      <div class="interchange" aria-hidden="true"><span></span><span></span><span></span><span></span><b>RT</b></div>
+      <div class="about-body">
+        <h2 id="about-title" class="big-h2">About Richard</h2>
+        <p>I've spent five years on enterprise Salesforce and Marketing Cloud projects at large consulting companies, in testing, technical and client-facing roles.</p>
+        <p>The part I like most is the technical layer: the syncs, queries and automations that decide whether a campaign reaches the right person at the right time. Sync &amp; Send is where I write down what I've learned about keeping that layer reliable.</p>
+        <p class="fine">Views here are my own and don't represent any employer or client.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="night">
+  <div class="wrap">
+    <section class="closing" id="subscribe" aria-labelledby="subscribe-title">
+      <div class="closing-copy">
+        <h2 id="subscribe-title">Catch the next issue</h2>
+        <p>Practical notes you can apply to your own setup, plus the checklist when you join.</p>
+      </div>
+      <form class="signup on-night" id="signup-footer" novalidate>
+        <label for="email-footer">Email address</label>
+        <div class="signup-row">
+          <input id="email-footer" type="email" name="email_address" autocomplete="email" placeholder="name@company.com" required>
+          <button class="btn-signal" type="submit">Subscribe</button>
+        </div>
+        <p class="status" role="status" aria-live="polite"></p>
+        <p class="consent">Unsubscribe anytime. <a href="#privacy" data-open-privacy>Privacy</a></p>
+      </form>
+    </section>
+
+    <footer class="site-foot">
+      <div class="foot-row">
+        <span>&copy; 2026 Richard Tuharsky</span>
+        <span>Salesforce, Marketing Cloud, Sales Cloud, Service Cloud and Data 360 are trademarks of Salesforce, Inc. Braze is a trademark of Braze, Inc. This site is independent and not affiliated with or endorsed by Salesforce or Braze.</span>
+      </div>
+      <details id="privacy">
+        <summary>Privacy</summary>
+        <p>When you sign up, I store your email address to send you the checklist and new issues of Sync &amp; Send. Emails are sent through Kit, my email provider, which stores your address on my behalf.</p>
+        <p>You can unsubscribe from any email with one click, or ask me to delete your data by writing to [YOUR CONTACT EMAIL].</p>
+      </details>
+    </footer>
+  </div>
+</div>
+
+<script>
+  // Paste the action URL from your Kit form's HTML embed code to make the forms live.
+  const KIT_FORM_ACTION = "";
+
+  document.querySelectorAll("form.signup").forEach((form) => {
+    const input = form.querySelector('input[type="email"]');
+    const status = form.querySelector(".status");
+    form.addEventListener("submit", (event) => {
+      const value = input.value.trim();
+      if (!value || !input.checkValidity()) {
+        event.preventDefault();
+        input.setAttribute("aria-invalid", "true");
+        status.dataset.tone = "error";
+        status.textContent = "Enter an email address, like name@company.com.";
+        input.focus();
+        return;
+      }
+      input.removeAttribute("aria-invalid");
+      if (KIT_FORM_ACTION) {
+        form.action = KIT_FORM_ACTION;
+        form.method = "post";
+        return;
+      }
+      event.preventDefault();
+      status.dataset.tone = "info";
+      status.textContent = "Sign-up isn't connected yet. Add the Kit form URL to go live.";
+    });
+    input.addEventListener("input", () => {
+      input.removeAttribute("aria-invalid");
+      if (status.dataset.tone === "error") { status.textContent = ""; status.dataset.tone = ""; }
+    });
+  });
+
+  document.querySelectorAll("[data-open-privacy]").forEach((link) => {
+    link.addEventListener("click", () => {
+      const details = document.getElementById("privacy");
+      if (details) details.open = true;
+    });
+  });
+</script>
+</body>
+</html>
