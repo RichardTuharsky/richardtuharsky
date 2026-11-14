@@ -18,6 +18,7 @@
   2. Paste it into KIT_FORM_ACTION in the script at the bottom of this file.
   3. Check the email input name matches Kit's embed code (set to "email_address" here).
   4. Replace [YOUR CONTACT EMAIL] in the Privacy section.
+  5. Add new articles to both the #arrivals list and the searchIndex array at the bottom.
 -->
 <style>
 :root {
@@ -66,7 +67,18 @@ a { color: inherit; text-underline-offset: 0.18em; }
 .site-nav .nav-cta { padding: 0 1.1rem; border-radius: 999px; background: var(--signal); color: var(--night); font-weight: 700; }
 .site-nav .nav-cta:hover { text-decoration: none; filter: brightness(1.06); }
 
-.hero { display: flex; flex-wrap: wrap; align-items: center; gap: 3rem 3.5rem; padding-block: clamp(1.75rem, 5vw, 4rem) clamp(2.5rem, 5vw, 3.5rem); }
+/* Nav dropdowns */
+.nav-item { position: relative; }
+.nav-toggle { display: inline-flex; align-items: center; gap: 0.35rem; min-height: 44px; padding: 0; border: 0; background: none; color: #E8ECF4; font-family: inherit; font-size: inherit; cursor: pointer; }
+.nav-toggle:hover { text-decoration: underline; }
+.nav-toggle svg { width: 11px; height: 11px; transition: transform 0.15s ease; }
+.nav-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.nav-menu { position: absolute; top: calc(100% + 0.3rem); left: 0; z-index: 40; min-width: 16rem; margin: 0; padding: 0.4rem; list-style: none; background: #FFFFFF; color: var(--ink); border-radius: 12px; box-shadow: 0 26px 50px -26px rgba(0, 0, 0, 0.7); }
+.nav-menu[hidden] { display: none; }
+.site-nav .nav-menu a { display: block; min-height: 0; padding: 0.6rem 0.75rem; border-radius: 8px; color: var(--ink); font-size: 0.9375rem; }
+.site-nav .nav-menu a:hover, .site-nav .nav-menu a:focus-visible { background: #EEF1F6; text-decoration: none; }
+
+.hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: clamp(1.75rem, 4vw, 2.75rem); padding-block: clamp(2.25rem, 6vw, 4.5rem) clamp(2.5rem, 5vw, 3.5rem); }
 
 /* Platforms row */
 .platforms { display: flex; flex-direction: column; gap: 1rem; padding-block: 1.5rem 2.25rem; border-top: 1px solid var(--board-rule); }
@@ -78,9 +90,26 @@ a { color: inherit; text-underline-offset: 0.18em; }
 .p-text { display: flex; flex-direction: column; min-width: 0; font-family: var(--font-display); }
 .p-name { font-weight: 700; font-size: 0.9375rem; line-height: 1.25; color: #FFFFFF; }
 .p-desc { font-size: 0.8125rem; line-height: 1.35; color: var(--on-night-muted); }
-.hero-copy { flex: 1 1 30rem; min-width: 0; display: flex; flex-direction: column; gap: 1.5rem; }
+.hero-copy { width: 100%; max-width: 50rem; display: flex; flex-direction: column; align-items: center; gap: 1.4rem; }
 .hero h1 { font-variation-settings: "wdth" 125; font-weight: 880; font-size: clamp(2.25rem, 5vw, 4.5rem); line-height: 0.98; letter-spacing: -0.03em; }
-.lede { font-size: clamp(1.125rem, 1.7vw, 1.25rem); line-height: 1.55; max-width: 32.5rem; color: var(--on-night-soft); }
+.lede { font-size: clamp(1.125rem, 1.7vw, 1.25rem); line-height: 1.55; max-width: 40rem; color: var(--on-night-soft); }
+
+/* Site search */
+.site-search { display: block; position: relative; width: 100%; max-width: 34rem; margin-top: 0.4rem; text-align: left; font-family: var(--font-display); }
+.search-field { position: relative; display: flex; align-items: center; }
+.search-field > svg { position: absolute; left: 1rem; width: 19px; height: 19px; color: #6B7588; pointer-events: none; }
+.site-search input[type="search"] { width: 100%; min-height: 54px; padding: 0.75rem 1rem 0.75rem 2.9rem; border: 2px solid transparent; border-radius: 12px; background: #FFFFFF; color: var(--ink); font-family: inherit; font-size: 1rem; -webkit-appearance: none; appearance: none; }
+.site-search input[type="search"]::placeholder { color: #6B7588; }
+.site-search input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
+.search-results { position: absolute; z-index: 30; top: calc(100% + 0.5rem); left: 0; right: 0; max-height: 23rem; overflow-y: auto; margin: 0; padding: 0; list-style: none; background: #FFFFFF; color: var(--ink); border-radius: 12px; box-shadow: 0 28px 54px -26px rgba(0, 0, 0, 0.7); }
+.search-results[hidden] { display: none; }
+.search-results li + li { border-top: 1px solid var(--rule); }
+.search-results a { display: flex; flex-direction: column; gap: 0.15rem; padding: 0.7rem 1rem; text-decoration: none; }
+.search-results a:hover, .search-results a:focus-visible { background: #EEF1F6; }
+.sr-kind { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.sr-title { font-weight: 700; font-size: 0.9375rem; line-height: 1.3; }
+.sr-desc { font-size: 0.8125rem; line-height: 1.4; color: var(--muted); }
+.search-empty { padding: 0.9rem 1rem; font-size: 0.875rem; color: var(--muted); }
 
 /* Signup forms */
 .signup { display: flex; flex-direction: column; gap: 0.6rem; max-width: 32.5rem; }
@@ -99,10 +128,9 @@ a { color: inherit; text-underline-offset: 0.18em; }
 .on-night .consent, .on-night .consent a { color: var(--on-night-muted); }
 .on-night .status[data-tone="error"] { color: #FF8A9A; }
 .on-night .status[data-tone="info"] { color: var(--signal); }
-.on-ticket .status[data-tone="error"], .on-ticket .status[data-tone="info"] { color: var(--ink); }
 
 /* Departures board */
-.board { flex: 1 1 27.5rem; min-width: 0; background: var(--board); border: 1px solid var(--board-rule); border-radius: 16px; padding: 1.4rem clamp(1.1rem, 2.4vw, 1.6rem); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6); font-family: var(--font-display); }
+.board { width: 100%; max-width: 48rem; text-align: left; background: var(--board); border: 1px solid var(--board-rule); border-radius: 16px; padding: 1.4rem clamp(1.1rem, 2.4vw, 1.6rem); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6); font-family: var(--font-display); }
 .board-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.25rem 1rem; padding-bottom: 0.9rem; border-bottom: 2px solid var(--board-rule); }
 .board-head h2 { font-variation-settings: "wdth" 112; font-weight: 750; font-size: 1.125rem; color: #FFFFFF; }
 .board-head span { font-size: 0.8125rem; color: var(--on-night-muted); }
@@ -129,38 +157,12 @@ a { color: inherit; text-underline-offset: 0.18em; }
 .section-head h2, .big-h2 { font-variation-settings: "wdth" 125; font-weight: 850; font-size: clamp(1.875rem, 4vw, 3rem); line-height: 1; letter-spacing: -0.025em; }
 .section-head p { color: var(--muted); max-width: 37.5rem; }
 
-/* Route */
-.route { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14.5rem), 1fr)); gap: 3rem 0; }
-.stop { position: relative; padding: 3.75rem 1.75rem 0 0; min-width: 0; display: flex; flex-direction: column; gap: 0.6rem; }
-.stop::before { content: ""; position: absolute; top: 15px; left: 0; right: 0; height: 10px; background: var(--line); }
-.stop-num { position: absolute; top: 0; left: 0; width: 40px; height: 40px; border-radius: 50%; background: #FFFFFF; border: 5px solid var(--ink); display: grid; place-items: center; font-family: var(--font-display); font-weight: 850; font-size: 0.9375rem; }
-.stop h3 { font-variation-settings: "wdth" 112; font-weight: 750; font-size: 1.3125rem; line-height: 1.15; }
-.stop p { font-size: 1rem; }
-.stop .symptom { font-size: 0.9375rem; color: var(--muted); }
-.stop .symptom strong { font-family: var(--font-display); font-weight: 700; color: var(--ink); }
-
-/* Checklist ticket */
-.magnet { display: flex; flex-wrap: wrap; align-items: center; gap: 2.5rem 4rem; }
-.magnet-copy { flex: 1 1 20rem; min-width: 0; display: flex; flex-direction: column; gap: 0.9rem; }
-.magnet-copy p { color: var(--muted); }
-.ticket { flex: 1.5 1 28.75rem; min-width: 0; position: relative; background: var(--signal); color: var(--ink); border-radius: 18px; box-shadow: 0 24px 48px -28px rgba(20, 33, 61, 0.55); }
-.ticket-main { padding: 1.5rem clamp(1.25rem, 3vw, 2rem) 0.25rem; }
-.ticket-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.25rem 1rem; font-family: var(--font-display); font-size: 0.875rem; }
-.ticket-top strong { font-weight: 750; }
-.ticket-top span { font-weight: 600; }
-.ticket-title { margin: 0.6rem 0 0.25rem; font-family: var(--font-display); font-variation-settings: "wdth" 125; font-weight: 880; font-size: clamp(1.5rem, 2.6vw, 2rem); line-height: 1.04; letter-spacing: -0.02em; }
-.ticket-sub { margin-bottom: 0.75rem; font-family: var(--font-display); font-size: 0.875rem; font-weight: 600; }
-.check { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.7rem 0; border-top: 1.5px solid rgba(20, 33, 61, 0.28); font-size: 1rem; line-height: 1.45; cursor: pointer; }
-.check input { flex: 0 0 auto; width: 18px; height: 18px; margin: 0.2rem 0 0; accent-color: var(--ink); cursor: pointer; }
-.check strong { font-family: var(--font-display); }
-.perforation { position: relative; height: 0; margin-top: 1.4rem; border-top: 3px dashed rgba(20, 33, 61, 0.5); }
-.perforation::before, .perforation::after { content: ""; position: absolute; top: -18px; width: 32px; height: 32px; border-radius: 50%; background: var(--paper); }
-.perforation::before { left: -16px; }
-.perforation::after { right: -16px; }
-.ticket-stub { padding: 1.5rem clamp(1.25rem, 3vw, 2rem) 1.6rem; }
-.on-ticket .consent, .on-ticket .consent a { color: var(--ink); }
-
 /* Articles */
+.filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 0.75rem; margin-bottom: 1.5rem; font-family: var(--font-display); font-size: 0.875rem; color: var(--muted); }
+.filter-bar[hidden] { display: none; }
+.filter-chip { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0.5rem 0.3rem 0.8rem; border: 1.5px solid var(--rule); border-radius: 999px; background: #FFFFFF; font-weight: 700; color: var(--ink); }
+.filter-chip button { width: 24px; height: 24px; border: 0; border-radius: 50%; background: var(--night); color: #FFFFFF; font-family: inherit; font-size: 0.8125rem; line-height: 1; cursor: pointer; }
+.arrival[hidden] { display: none; }
 .arrivals { margin: 0; padding: 0; list-style: none; border-bottom: 1px solid var(--rule); }
 .arrival { border-top: 1px solid var(--rule); padding-block: 1.5rem; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.75rem 1.75rem; }
 .badge { flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%; background: var(--line); display: grid; place-items: center; font-family: var(--font-display); font-weight: 850; font-size: 0.9375rem; color: var(--ink); }
@@ -182,9 +184,19 @@ a { color: inherit; text-underline-offset: 0.18em; }
 .interchange span:nth-child(2) { background: var(--line-2); transform: rotate(45deg); }
 .interchange span:nth-child(3) { background: var(--line-3); transform: rotate(90deg); }
 .interchange span:nth-child(4) { background: var(--line-4); transform: rotate(135deg); }
-.interchange b { position: absolute; left: 32px; top: 32px; width: 104px; height: 104px; border-radius: 50%; background: #FFFFFF; border: 8px solid var(--ink); display: grid; place-items: center; font-family: var(--font-display); font-variation-settings: "wdth" 125; font-weight: 880; font-size: 1.75rem; letter-spacing: -0.03em; }
+.interchange b { position: absolute; left: 32px; top: 32px; width: 104px; height: 104px; border-radius: 50%; background: #FFFFFF; border: 8px solid var(--ink); display: grid; place-items: center; font-family: var(--font-display); font-variation-settings: "wdth" 112; font-weight: 880; font-size: 1.3125rem; letter-spacing: -0.02em; }
 .about-body { flex: 1 1 20rem; min-width: 0; max-width: 40rem; display: flex; flex-direction: column; gap: 1rem; }
 .about-body .fine { font-size: 0.9375rem; color: var(--muted); }
+
+/* KEEP model */
+.keepmark { flex: 0 1 22rem; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 1.25rem; }
+.keep-eq { font-family: var(--font-display); font-variation-settings: "wdth" 112; font-weight: 850; font-size: 1.125rem; letter-spacing: -0.01em; }
+.keep-formula { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem; font-family: var(--font-display); font-size: 0.9375rem; }
+.keep-formula li { display: flex; align-items: center; gap: 0.5rem; }
+.keep-formula .dot { flex: 0 0 auto; width: 12px; height: 12px; border-radius: 50%; background: var(--line); }
+.keep-formula b { font-weight: 750; }
+.keep-formula .what { color: var(--muted); }
+.keep-formula li:not(:last-child)::after { content: "\2192"; margin-left: 0.4rem; color: var(--muted); }
 
 /* Closing band */
 .closing { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 2rem 4rem; padding-block: clamp(3.5rem, 8vw, 6.5rem) clamp(2.5rem, 6vw, 4.5rem); }
@@ -200,6 +212,9 @@ a { color: inherit; text-underline-offset: 0.18em; }
 .site-foot details[open] summary { margin-bottom: 0.6rem; }
 .site-foot details p { font-family: var(--font-body); font-size: 0.9375rem; line-height: 1.55; color: var(--on-night-soft); margin-bottom: 0.6rem; }
 
+@media (max-width: 34rem) {
+  .nav-menu { left: auto; right: 0; min-width: min(16rem, calc(100vw - 2.5rem)); }
+}
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
 </head>
@@ -213,8 +228,30 @@ a { color: inherit; text-underline-offset: 0.18em; }
         <span class="byline">by Richard Tuharsky</span>
       </a>
       <nav class="site-nav" aria-label="Main">
-        <a href="#checklist">Checklist</a>
-        <a href="#articles">Articles</a>
+        <div class="nav-item">
+          <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu-resources">
+            Resources
+            <svg viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>
+          </button>
+          <ul class="nav-menu" id="menu-resources" hidden>
+            <li><a href="#articles" data-filter="mce">Marketing Cloud Engagement</a></li>
+            <li><a href="#articles" data-filter="mc-next">MC Next</a></li>
+            <li><a href="#articles" data-filter="data-360">Data 360</a></li>
+            <li><a href="#articles" data-filter="braze">Braze</a></li>
+          </ul>
+        </div>
+        <div class="nav-item">
+          <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu-articles">
+            Articles
+            <svg viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>
+          </button>
+          <ul class="nav-menu" id="menu-articles" hidden>
+            <li><a href="#articles" data-filter="">All articles</a></li>
+            <li><a href="#articles" data-filter="customer-data">Customer Data</a></li>
+            <li><a href="#articles" data-filter="retention">Retention</a></li>
+            <li><a href="#articles" data-filter="ltv">LTV</a></li>
+          </ul>
+        </div>
         <a href="#about">About</a>
         <a class="nav-cta" href="#subscribe">Subscribe</a>
       </nav>
@@ -224,15 +261,16 @@ a { color: inherit; text-underline-offset: 0.18em; }
       <div class="hero-copy on-night">
         <h1 id="hero-title">Your campaign is only as fresh as the data behind it.</h1>
         <p class="lede">Practical notes on customer data, automation and marketing-to-sales handoffs, for the people who keep marketing and CRM systems running.</p>
-        <form class="signup" id="signup-hero" novalidate>
-          <label for="email-hero">Get the Automation Reliability Checklist</label>
-          <div class="signup-row">
-            <input id="email-hero" type="email" name="email_address" autocomplete="email" placeholder="name@company.com" required>
-            <button class="btn-signal" type="submit">Get the checklist</button>
-          </div>
-          <p class="status" role="status" aria-live="polite"></p>
-          <p class="consent">You'll also get new issues of Sync &amp; Send. Unsubscribe anytime. <a href="#privacy" data-open-privacy>Privacy</a></p>
-        </form>
+        <search class="site-search">
+          <form role="search" id="site-search-form" autocomplete="off">
+            <label class="sr-only" for="search-input">Search Sync &amp; Send</label>
+            <div class="search-field">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg>
+              <input id="search-input" type="search" placeholder="Search guides, topics and platforms" role="combobox" aria-expanded="false" aria-controls="search-results" aria-autocomplete="list">
+            </div>
+          </form>
+          <ul class="search-results" id="search-results" role="listbox" aria-label="Search results" hidden></ul>
+        </search>
       </div>
 
       <div class="board">
@@ -262,8 +300,8 @@ a { color: inherit; text-underline-offset: 0.18em; }
           <span class="p-text"><span class="p-name">Marketing Cloud Engagement</span><span class="p-desc">Journeys, automations, data extensions</span></span>
         </li>
         <li class="platform">
-          <span class="p-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16.2c.6-1.6 1.8-2.4 3.2-2.4s2.6.8 3.2 2.4"/><path d="M14.5 10h4M14.5 13.5h3"/></svg></span>
-          <span class="p-text"><span class="p-name">Sales Cloud and Service Cloud</span><span class="p-desc">Leads, routing, Flow, handoffs</span></span>
+          <span class="p-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h9"/><path d="m10 8.5 3.5 3.5-3.5 3.5"/><circle cx="18" cy="12" r="2.5"/><path d="M4 6.5h5M4 17.5h5"/></svg></span>
+          <span class="p-text"><span class="p-name">Marketing Cloud Next</span><span class="p-desc">Core-platform journeys and migration</span></span>
         </li>
         <li class="platform">
           <span class="p-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7" ry="2.8"/><path d="M5 5.5V12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8V5.5"/><path d="M5 12v6.5c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8V12"/></svg></span>
@@ -273,131 +311,98 @@ a { color: inherit; text-underline-offset: 0.18em; }
           <span class="p-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="11" height="19" rx="2.5"/><path d="M10 18.5h3"/><circle cx="18" cy="5.5" r="2.6" fill="currentColor" stroke="none"/></svg></span>
           <span class="p-text"><span class="p-name">Braze</span><span class="p-desc">Data feeds, audiences, identifiers</span></span>
         </li>
+        <li class="platform">
+          <span class="p-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16.2c.6-1.6 1.8-2.4 3.2-2.4s2.6.8 3.2 2.4"/><path d="M14.5 10h4M14.5 13.5h3"/></svg></span>
+          <span class="p-text"><span class="p-name">Sales Cloud and Service Cloud</span><span class="p-desc">Leads, routing, Flow, handoffs</span></span>
+        </li>
       </ul>
     </section>
   </div>
 </div>
 
 <main class="wrap">
-  <section class="section" id="topics" aria-labelledby="topics-title">
-    <div class="section-head">
-      <h2 id="topics-title">The route</h2>
-      <p>Four stops between your customer data and a sale. Each one is a place campaigns go wrong, and each one is a topic here.</p>
-    </div>
-    <ol class="route">
-      <li class="stop" style="--line: var(--line-1)">
-        <span class="stop-num" aria-hidden="true">1</span>
-        <h3>Data foundations</h3>
-        <p>Where customer data originates, how it moves between CRM and marketing systems, and whether you can trust it when it gets there.</p>
-        <p class="symptom"><strong>Sounds familiar if</strong> records don't match between systems, or nobody can say which one is the source of truth.</p>
-      </li>
-      <li class="stop" style="--line: var(--line-2)">
-        <span class="stop-num" aria-hidden="true">2</span>
-        <h3>Usable audiences</h3>
-        <p>Segments that reflect today's customers. Queries and filters that stay correct as the data underneath them changes.</p>
-        <p class="symptom"><strong>Sounds familiar if</strong> audiences are rebuilt by hand or start life as a spreadsheet export.</p>
-      </li>
-      <li class="stop" style="--line: var(--line-3)">
-        <span class="stop-num" aria-hidden="true">3</span>
-        <h3>Dependable automation</h3>
-        <p>Scheduling dependencies, error handling, monitoring and recovery, so a failed step gets noticed and fixed before the send.</p>
-        <p class="symptom"><strong>Sounds familiar if</strong> automations fail quietly and campaigns go out late, or not at all.</p>
-      </li>
-      <li class="stop" style="--line: var(--line-4)">
-        <span class="stop-num" aria-hidden="true">4</span>
-        <h3>Marketing-to-sales handoffs</h3>
-        <p>Getting engaged leads into the CRM with the context a salesperson needs to act on them, and proving that it happened.</p>
-        <p class="symptom"><strong>Sounds familiar if</strong> sales says marketing leads never arrive, or arrive without context.</p>
-      </li>
-    </ol>
-  </section>
-
-  <section class="section" id="checklist" aria-labelledby="checklist-title">
-    <div class="magnet">
-      <div class="magnet-copy">
-        <h2 id="checklist-title" class="big-h2">Check your automations before your customers do</h2>
-        <p>The Automation Reliability Checklist covers the places marketing automation usually breaks: scheduling, data freshness, alerts, pre-send checks, recovery and ownership. It's free when you subscribe.</p>
-      </div>
-      <div class="ticket">
-        <div class="ticket-main">
-          <div class="ticket-top"><strong>Admit one</strong><span>Valid on any marketing automation setup</span></div>
-          <p class="ticket-title">Automation Reliability Checklist</p>
-          <p class="ticket-sub">Six sample checks. Tick the ones you already pass.</p>
-          <label class="check" for="t1"><input type="checkbox" id="t1"><span><strong>Scheduling.</strong> Every automation that reads synced data starts after the sync completes, not at a guessed time.</span></label>
-          <label class="check" for="t2"><input type="checkbox" id="t2"><span><strong>Freshness.</strong> You can see when each key audience was last refreshed.</span></label>
-          <label class="check" for="t3"><input type="checkbox" id="t3"><span><strong>Alerts.</strong> A failed step alerts a named person, not a shared inbox.</span></label>
-          <label class="check" for="t4"><input type="checkbox" id="t4"><span><strong>Pre-send.</strong> A send stops or warns when its audience is empty or much smaller than usual.</span></label>
-          <label class="check" for="t5"><input type="checkbox" id="t5"><span><strong>Recovery.</strong> There's a written way to rerun a failed night without sending twice.</span></label>
-          <label class="check" for="t6"><input type="checkbox" id="t6"><span><strong>Ownership.</strong> Every automation has a named owner and a one-line description of what it's for.</span></label>
-        </div>
-        <div class="perforation" aria-hidden="true"></div>
-        <div class="ticket-stub on-ticket">
-          <form class="signup" id="signup-checklist" novalidate>
-            <label for="email-checklist">Email address</label>
-            <div class="signup-row">
-              <input id="email-checklist" type="email" name="email_address" autocomplete="email" placeholder="name@company.com" required>
-              <button class="btn-night" type="submit">Get the checklist</button>
-            </div>
-            <p class="status" role="status" aria-live="polite"></p>
-            <p class="consent">You'll also get new issues of Sync &amp; Send. Unsubscribe anytime. <a href="#privacy" data-open-privacy>Privacy</a></p>
-          </form>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <section class="section" id="articles" aria-labelledby="articles-title">
     <div class="section-head">
-      <h2 id="articles-title">Next arrivals</h2>
+      <h2 id="articles-title">Latest articles and resources</h2>
       <p>The first guide is out. Subscribe to get the rest when they're published.</p>
     </div>
-    <ul class="arrivals">
-      <li class="arrival" style="--line: var(--line-1)">
-        <span class="badge" aria-hidden="true">1</span>
+    <p class="filter-bar" id="filter-bar" hidden>
+      <span>Showing</span>
+      <span class="filter-chip"><span id="filter-label"></span><button type="button" id="filter-clear" aria-label="Clear filter">&times;</button></span>
+    </p>
+    <ul class="arrivals" id="arrivals">
+      <li class="arrival" style="--line: var(--line-1)" data-tags="data-360 customer-data">
+        <span class="badge" aria-hidden="true">K</span>
         <div class="arrival-title">
           <h3><a href="guides/data-360-crm-data-stream-troubleshooting.html">Data 360 is connected, but CRM data won't load</a></h3>
-          <p class="arrival-meta"><span class="pill next">New guide</span><span>Stop 1: Data foundations</span><span>9 min read</span></p>
+          <p class="arrival-meta"><span class="pill next">New guide</span><span>Know: customer data</span><span>9 min read</span></p>
         </div>
         <p>A step-by-step way to find where Sales and Service Cloud data stops on its way into Data 360, and how to prove the fix worked.</p>
       </li>
-      <li class="arrival" style="--line: var(--line-2)">
-        <span class="badge" aria-hidden="true">2</span>
+      <li class="arrival" style="--line: var(--line-2)" data-tags="mce data-360 customer-data">
+        <span class="badge" aria-hidden="true">K</span>
         <div class="arrival-title">
           <h3>Synced isn't the same as fresh</h3>
-          <p class="arrival-meta"><span class="pill soon">Coming up</span><span>Stop 2: Usable audiences</span></p>
+          <p class="arrival-meta"><span class="pill soon">Coming up</span><span>Know: customer data</span></p>
         </div>
         <p>How to tell when your audience data last changed, and why a successful sync can still leave you with yesterday's customers.</p>
       </li>
-      <li class="arrival" style="--line: var(--line-3)">
-        <span class="badge" aria-hidden="true">3</span>
+      <li class="arrival" style="--line: var(--line-3)" data-tags="mce mc-next">
+        <span class="badge" aria-hidden="true">E</span>
         <div class="arrival-title">
           <h3>The automation that failed at 3am</h3>
-          <p class="arrival-meta"><span class="pill soon">Coming up</span><span>Stop 3: Dependable automation</span></p>
+          <p class="arrival-meta"><span class="pill soon">Coming up</span><span>Engage: journeys</span></p>
         </div>
         <p>Who finds out first when an overnight step breaks, and how to make sure it's you and not your customers.</p>
       </li>
-      <li class="arrival" style="--line: var(--line-4)">
-        <span class="badge" aria-hidden="true">4</span>
+      <li class="arrival" style="--line: var(--line-4)" data-tags="mce customer-data">
+        <span class="badge" aria-hidden="true">E</span>
         <div class="arrival-title">
           <h3>The lead nobody followed up</h3>
-          <p class="arrival-meta"><span class="pill soon">Coming up</span><span>Stop 4: Marketing-to-sales handoffs</span></p>
+          <p class="arrival-meta"><span class="pill soon">Coming up</span><span>Engage: journeys</span></p>
         </div>
         <p>Tracing one lead from form fill to sales task, and the places it usually disappears.</p>
       </li>
-      <li class="arrival" style="--line: var(--line-1)">
-        <span class="badge" aria-hidden="true">1</span>
+      <li class="arrival" style="--line: var(--line-1)" data-tags="data-360 braze customer-data">
+        <span class="badge" aria-hidden="true">K</span>
         <div class="arrival-title">
           <h3>One person, three IDs</h3>
-          <p class="arrival-meta"><span class="pill soon">Coming up</span><span>Stop 1: Data foundations</span></p>
+          <p class="arrival-meta"><span class="pill soon">Coming up</span><span>Know: customer data</span></p>
         </div>
         <p>How duplicate records and mismatched identifiers creep in between CRM and marketing, and how to stop them.</p>
       </li>
+      <li class="arrival" style="--line: var(--line-2)" data-tags="data-360 mce ltv">
+        <span class="badge" aria-hidden="true">E</span>
+        <div class="arrival-title">
+          <h3>The segments that actually move LTV</h3>
+          <p class="arrival-meta"><span class="pill soon">Coming up</span><span>Expand: LTV</span></p>
+        </div>
+        <p>Turning order and engagement history into audiences worth expanding, and measuring whether the expansion paid for itself.</p>
+      </li>
+      <li class="arrival" style="--line: var(--line-3)" data-tags="braze mce retention">
+        <span class="badge" aria-hidden="true">P</span>
+        <div class="arrival-title">
+          <h3>Churn signals you already have</h3>
+          <p class="arrival-meta"><span class="pill soon">Coming up</span><span>Protect: churn prevention</span></p>
+        </div>
+        <p>The drop-off patterns sitting in your existing event data, and how to act on them before the unsubscribe.</p>
+      </li>
     </ul>
+    <p class="search-empty" id="arrivals-empty" hidden>Nothing published under that topic yet. Subscribe and it'll land in your inbox first.</p>
   </section>
 
   <section class="section" id="about" aria-labelledby="about-title">
     <div class="about">
-      <div class="interchange" aria-hidden="true"><span></span><span></span><span></span><span></span><b>RT</b></div>
+      <div class="keepmark">
+        <div class="interchange" aria-hidden="true"><span></span><span></span><span></span><span></span><b>KEEP</b></div>
+        <p class="keep-eq">KEEP =</p>
+        <ul class="keep-formula">
+          <li style="--line: var(--line-1)"><span class="dot" aria-hidden="true"></span><b>Know</b>&nbsp;<span class="what">customer data</span></li>
+          <li style="--line: var(--line-2)"><span class="dot" aria-hidden="true"></span><b>Engage</b>&nbsp;<span class="what">journeys</span></li>
+          <li style="--line: var(--line-3)"><span class="dot" aria-hidden="true"></span><b>Expand</b>&nbsp;<span class="what">LTV</span></li>
+          <li style="--line: var(--line-4)"><span class="dot" aria-hidden="true"></span><b>Protect</b>&nbsp;<span class="what">churn prevention</span></li>
+        </ul>
+      </div>
       <div class="about-body">
         <h2 id="about-title" class="big-h2">About Richard</h2>
         <p>I've spent five years on enterprise Salesforce and Marketing Cloud projects at large consulting companies, in testing, technical and client-facing roles.</p>
@@ -413,7 +418,7 @@ a { color: inherit; text-underline-offset: 0.18em; }
     <section class="closing" id="subscribe" aria-labelledby="subscribe-title">
       <div class="closing-copy">
         <h2 id="subscribe-title">Catch the next issue</h2>
-        <p>Practical notes you can apply to your own setup, plus the checklist when you join.</p>
+        <p>Subscribe to get the latest news, guides and practical notes you can apply to your own setup.</p>
       </div>
       <form class="signup on-night" id="signup-footer" novalidate>
         <label for="email-footer">Email address</label>
@@ -422,7 +427,7 @@ a { color: inherit; text-underline-offset: 0.18em; }
           <button class="btn-signal" type="submit">Subscribe</button>
         </div>
         <p class="status" role="status" aria-live="polite"></p>
-        <p class="consent">Unsubscribe anytime. <a href="#privacy" data-open-privacy>Privacy</a></p>
+        <p class="consent">New issues of Sync &amp; Send. Unsubscribe anytime. <a href="#privacy" data-open-privacy>Privacy</a></p>
       </form>
     </section>
 
@@ -433,7 +438,7 @@ a { color: inherit; text-underline-offset: 0.18em; }
       </div>
       <details id="privacy">
         <summary>Privacy</summary>
-        <p>When you sign up, I store your email address to send you the checklist and new issues of Sync &amp; Send. Emails are sent through Kit, my email provider, which stores your address on my behalf.</p>
+        <p>When you sign up, I store your email address to send you new issues of Sync &amp; Send. Emails are sent through Kit, my email provider, which stores your address on my behalf.</p>
         <p>You can unsubscribe from any email with one click, or ask me to delete your data by writing to [YOUR CONTACT EMAIL].</p>
       </details>
     </footer>
@@ -479,6 +484,242 @@ a { color: inherit; text-underline-offset: 0.18em; }
       if (details) details.open = true;
     });
   });
+
+  /* Nav dropdowns */
+  const navToggles = Array.from(document.querySelectorAll(".nav-toggle"));
+  const closeMenus = (except) => {
+    navToggles.forEach((toggle) => {
+      if (toggle === except) return;
+      toggle.setAttribute("aria-expanded", "false");
+      document.getElementById(toggle.getAttribute("aria-controls")).hidden = true;
+    });
+  };
+  navToggles.forEach((toggle) => {
+    const menu = document.getElementById(toggle.getAttribute("aria-controls"));
+    toggle.addEventListener("click", () => {
+      const open = toggle.getAttribute("aria-expanded") === "true";
+      closeMenus(toggle);
+      toggle.setAttribute("aria-expanded", String(!open));
+      menu.hidden = open;
+    });
+  });
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".nav-item")) closeMenus(null);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    const open = navToggles.find((t) => t.getAttribute("aria-expanded") === "true");
+    closeMenus(null);
+    if (open) open.focus();
+  });
+
+  /* Topic and platform filtering on the articles list */
+  const arrivals = Array.from(document.querySelectorAll("#arrivals .arrival"));
+  const filterBar = document.getElementById("filter-bar");
+  const filterLabel = document.getElementById("filter-label");
+  const arrivalsEmpty = document.getElementById("arrivals-empty");
+
+  const applyFilter = (tag, label) => {
+    let shown = 0;
+    arrivals.forEach((item) => {
+      const match = !tag || item.dataset.tags.split(" ").includes(tag);
+      item.hidden = !match;
+      if (match) shown += 1;
+    });
+    filterBar.hidden = !tag;
+    filterLabel.textContent = label || "";
+    arrivalsEmpty.hidden = shown > 0;
+  };
+
+  document.querySelectorAll(".nav-menu a[data-filter]").forEach((link) => {
+    link.addEventListener("click", () => {
+      applyFilter(link.dataset.filter, link.textContent.trim());
+      closeMenus(null);
+    });
+  });
+  document.getElementById("filter-clear").addEventListener("click", () => {
+    applyFilter("", "");
+    document.getElementById("articles").scrollIntoView({ block: "start" });
+  });
+
+  /* Site search */
+  const searchIndex = [
+    {
+      title: "Data 360 is connected, but CRM data won't load",
+      desc: "Find where Sales and Service Cloud data stops on its way into Data 360, and prove the fix worked.",
+      kind: "Guide",
+      url: "guides/data-360-crm-data-stream-troubleshooting.html",
+      keywords: "data 360 cdp crm data stream salesforce ingestion troubleshooting customer data know sync"
+    },
+    {
+      title: "Synced isn't the same as fresh",
+      desc: "Coming up. Telling when audience data last changed, and why a successful sync still leaves you with yesterday's customers.",
+      kind: "Article",
+      url: "#articles",
+      keywords: "sync freshness audience data extension marketing cloud engagement customer data know"
+    },
+    {
+      title: "The automation that failed at 3am",
+      desc: "Coming up. Who finds out first when an overnight step breaks.",
+      kind: "Article",
+      url: "#articles",
+      keywords: "automation studio scheduling error handling alerts monitoring engage journeys mc next"
+    },
+    {
+      title: "The lead nobody followed up",
+      desc: "Coming up. Tracing one lead from form fill to sales task.",
+      kind: "Article",
+      url: "#articles",
+      keywords: "leads handoff sales cloud service cloud flow routing engage journeys"
+    },
+    {
+      title: "One person, three IDs",
+      desc: "Coming up. How duplicate records and mismatched identifiers creep in between CRM and marketing.",
+      kind: "Article",
+      url: "#articles",
+      keywords: "identity resolution duplicates contact key subscriber key braze data 360 customer data know"
+    },
+    {
+      title: "The segments that actually move LTV",
+      desc: "Coming up. Turning order and engagement history into audiences worth expanding.",
+      kind: "Article",
+      url: "#articles",
+      keywords: "ltv lifetime value expand segments rfm revenue growth"
+    },
+    {
+      title: "Churn signals you already have",
+      desc: "Coming up. Drop-off patterns in your existing event data, and how to act on them.",
+      kind: "Article",
+      url: "#articles",
+      keywords: "churn retention protect win back lapsed engagement braze"
+    },
+    {
+      title: "Marketing Cloud Engagement",
+      desc: "Journeys, automations, data extensions.",
+      kind: "Platform",
+      url: "#platforms-title",
+      keywords: "sfmc marketing cloud engagement journey builder automation studio ampscript sql query"
+    },
+    {
+      title: "Marketing Cloud Next",
+      desc: "Core-platform journeys and migration.",
+      kind: "Platform",
+      url: "#platforms-title",
+      keywords: "mc next marketing cloud next core platform migration data cloud native"
+    },
+    {
+      title: "Data 360 and other CDPs",
+      desc: "Ingestion, segments, activation.",
+      kind: "Platform",
+      url: "#platforms-title",
+      keywords: "data 360 data cloud cdp ingestion data streams segments activation identity"
+    },
+    {
+      title: "Braze",
+      desc: "Data feeds, audiences, identifiers.",
+      kind: "Platform",
+      url: "#platforms-title",
+      keywords: "braze canvas segments catalogs connected content external id"
+    },
+    {
+      title: "Sales Cloud and Service Cloud",
+      desc: "Leads, routing, Flow, handoffs.",
+      kind: "Platform",
+      url: "#platforms-title",
+      keywords: "sales cloud service cloud crm leads campaigns flow routing tasks"
+    },
+    {
+      title: "KEEP: Know, Engage, Expand, Protect",
+      desc: "The model behind everything here: customer data, journeys, LTV and churn prevention.",
+      kind: "About",
+      url: "#about",
+      keywords: "keep know engage expand protect model framework ltv churn"
+    },
+    {
+      title: "About Richard",
+      desc: "Five years on enterprise Salesforce and Marketing Cloud projects.",
+      kind: "About",
+      url: "#about",
+      keywords: "about richard tuharsky salesforce consultant author contact"
+    },
+    {
+      title: "Subscribe",
+      desc: "Get new issues of Sync & Send by email.",
+      kind: "Page",
+      url: "#subscribe",
+      keywords: "subscribe newsletter email signup updates news"
+    }
+  ];
+
+  const searchInput = document.getElementById("search-input");
+  const searchList = document.getElementById("search-results");
+
+  const renderResults = (query) => {
+    const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!terms.length) {
+      searchList.hidden = true;
+      searchList.innerHTML = "";
+      searchInput.setAttribute("aria-expanded", "false");
+      return;
+    }
+    const matches = searchIndex
+      .map((entry) => {
+        const haystack = (entry.title + " " + entry.desc + " " + entry.keywords).toLowerCase();
+        let score = 0;
+        for (const term of terms) {
+          if (entry.title.toLowerCase().includes(term)) score += 3;
+          else if (haystack.includes(term)) score += 1;
+          else return null;
+        }
+        return { entry, score };
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 8);
+
+    if (!matches.length) {
+      searchList.innerHTML = '<li class="search-empty">No matches. Try "Data 360", "churn" or "automation".</li>';
+    } else {
+      searchList.innerHTML = matches
+        .map(({ entry }) =>
+          '<li role="option"><a href="' + entry.url + '">' +
+          '<span class="sr-kind">' + entry.kind + "</span>" +
+          '<span class="sr-title">' + entry.title + "</span>" +
+          '<span class="sr-desc">' + entry.desc + "</span></a></li>"
+        )
+        .join("");
+    }
+    searchList.hidden = false;
+    searchInput.setAttribute("aria-expanded", "true");
+  };
+
+  const closeSearch = () => {
+    searchList.hidden = true;
+    searchInput.setAttribute("aria-expanded", "false");
+  };
+
+  searchInput.addEventListener("input", () => renderResults(searchInput.value.trim()));
+  searchInput.addEventListener("focus", () => { if (searchInput.value.trim()) renderResults(searchInput.value.trim()); });
+  document.getElementById("site-search-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const first = searchList.querySelector("a");
+    if (first) first.click();
+  });
+  searchInput.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") { closeSearch(); return; }
+    if (event.key !== "ArrowDown") return;
+    const first = searchList.querySelector("a");
+    if (first) { event.preventDefault(); first.focus(); }
+  });
+  searchList.addEventListener("keydown", (event) => {
+    const links = Array.from(searchList.querySelectorAll("a"));
+    const index = links.indexOf(document.activeElement);
+    if (event.key === "ArrowDown" && index > -1 && links[index + 1]) { event.preventDefault(); links[index + 1].focus(); }
+    if (event.key === "ArrowUp") { event.preventDefault(); (index > 0 ? links[index - 1] : searchInput).focus(); }
+    if (event.key === "Escape") { closeSearch(); searchInput.focus(); }
+  });
+  searchList.addEventListener("click", (event) => { if (event.target.closest("a")) closeSearch(); });
+  document.addEventListener("click", (event) => { if (!event.target.closest(".site-search")) closeSearch(); });
 </script>
 </body>
 </html>
