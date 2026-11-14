@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/*
+  Sync & Send design tokens: "Night run".
+  Navy night bands over a paper middle; signal amber for primary actions only;
+  four route-line colours reserved for the four topics.
+*/
+@theme {
+  --color-night: #14213d;
+  --color-board: #0c1630;
+  --color-board-rule: #24345a;
+  --color-paper: #f5f6f2;
+  --color-ink: #14213d;
+  --color-muted: #4e5a70;
+  --color-rule: #d3d7de;
+  --color-on-night: #ffffff;
+  --color-on-night-soft: #d5dce8;
+  --color-on-night-muted: #aeb8cc;
+  --color-signal: #ffb703;
+  --color-line-1: #ff5d73;
+  --color-line-2: #ffb703;
+  --color-line-3: #2ec4b6;
+  --color-line-4: #8c7cff;
+
+  --spacing-section: 6rem; /* 96px desktop rhythm */
+  --spacing-section-sm: 3.5rem; /* 56px mobile rhythm */
+  --spacing-wrap: 72rem;
+}
+
+@theme inline {
+  --font-display: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
+  --font-body: var(--font-source-serif), Georgia, "Times New Roman", serif;
+}
+
+/* Archivo width axis: headings run wide. */
+@utility wdth-112 {
+  font-variation-settings: "wdth" 112;
+}
+@utility wdth-125 {
+  font-variation-settings: "wdth" 125;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.6;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-signal);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
