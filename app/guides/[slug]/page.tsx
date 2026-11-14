@@ -139,10 +139,13 @@ export default async function GuidePage({ params }: GuidePageProps) {
             <summary className="cursor-pointer text-[0.9375rem] font-bold">
               In this guide
             </summary>
-            <ol className="mt-3 flex list-decimal flex-col gap-1.5 pl-5 text-[0.9375rem]">
+            <ol className="mt-3 flex list-decimal flex-col pl-5 text-[0.9375rem]">
               {meta.toc.map((entry) => (
                 <li key={entry.id}>
-                  <a href={`#${entry.id}`} className="text-ink">
+                  <a
+                    href={`#${entry.id}`}
+                    className="inline-flex min-h-11 items-center text-ink"
+                  >
                     {entry.label}
                   </a>
                 </li>

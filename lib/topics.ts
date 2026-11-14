@@ -15,6 +15,12 @@ export interface Topic {
   name: string;
   /** CSS colour value of the reserved route line. */
   line: string;
+  /**
+   * Darkened variant of the line colour for text on paper/white surfaces
+   * (the raw line colours fail WCAG AA as text). Lines, dots and bars keep
+   * using `line`.
+   */
+  labelColor: string;
   /** Tailwind token name, e.g. for bg-line-1 / text-line-1 classes. */
   lineToken: "line-1" | "line-2" | "line-3" | "line-4";
   description: string;
@@ -27,6 +33,7 @@ export const TOPICS: Record<TopicId, Topic> = {
     stop: 1,
     name: "Data foundations",
     line: "#ff5d73",
+    labelColor: "#c7294c",
     lineToken: "line-1",
     description:
       "Where customer data originates, how it moves between CRM and marketing systems, and whether you can trust it when it gets there.",
@@ -38,6 +45,7 @@ export const TOPICS: Record<TopicId, Topic> = {
     stop: 2,
     name: "Usable audiences",
     line: "#ffb703",
+    labelColor: "#8a5a00",
     lineToken: "line-2",
     description:
       "Segments that reflect today's customers. Queries and filters that stay correct as the data underneath them changes.",
@@ -49,6 +57,7 @@ export const TOPICS: Record<TopicId, Topic> = {
     stop: 3,
     name: "Dependable automation",
     line: "#2ec4b6",
+    labelColor: "#0f7a6f",
     lineToken: "line-3",
     description:
       "Scheduling dependencies, error handling, monitoring and recovery, so a failed step gets noticed and fixed before the send.",
@@ -60,6 +69,7 @@ export const TOPICS: Record<TopicId, Topic> = {
     stop: 4,
     name: "Marketing-to-sales handoffs",
     line: "#8c7cff",
+    labelColor: "#5f4ec2",
     lineToken: "line-4",
     description:
       "Getting engaged leads into the CRM with the context a salesperson needs to act on them, and proving that it happened.",

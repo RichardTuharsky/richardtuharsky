@@ -16,10 +16,7 @@ export function GuideCard({ guide }: { guide: GuideMeta }) {
       />
       <div className="flex flex-col gap-3.5 py-7 pr-[clamp(1.25rem,3vw,2rem)] pl-[calc(clamp(1.25rem,3vw,2rem)+0.625rem)]">
         <p className="flex flex-wrap items-center gap-x-4 gap-y-1 font-display text-sm">
-          <span
-            className="font-bold"
-            style={{ color: topic.id === "usable-audiences" ? "#8a5a00" : topic.line }}
-          >
+          <span className="font-bold" style={{ color: topic.labelColor }}>
             {topic.name}
           </span>
           <span className="text-muted">{guide.readTime} min read</span>
