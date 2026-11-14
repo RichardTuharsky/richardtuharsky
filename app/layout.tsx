@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo, Source_Serif_4 } from "next/font/google";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import "./globals.css";
 
 const archivo = Archivo({
@@ -36,7 +38,13 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${archivo.variable} ${sourceSerif.variable}`}>
-      <body>{children}</body>
+      <body>
+        <div className="bg-night text-on-night">
+          <Header />
+        </div>
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }

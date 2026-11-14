@@ -40,6 +40,13 @@
   font-variation-settings: "wdth" 125;
 }
 
+/* Page column: 72rem with a fluid gutter. */
+@utility wrap {
+  max-width: var(--spacing-wrap);
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
