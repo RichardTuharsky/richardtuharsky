@@ -64,12 +64,12 @@ export default function SiteSearch({ index }: { index: SearchEntry[] }) {
         <label htmlFor="site-search" className="sr-only">
           Search Sync &amp; Send
         </label>
-        <div className="relative flex items-center">
+        <div className="group relative flex items-center">
           <Search
             size={19}
             strokeWidth={2}
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 text-[#6b7588]"
+            className="pointer-events-none absolute left-4 text-[#6b7588] transition-colors duration-200 group-focus-within:text-night"
           />
           <input
             id="site-search"
@@ -88,7 +88,7 @@ export default function SiteSearch({ index }: { index: SearchEntry[] }) {
             onKeyDown={(event) => {
               if (event.key === "Escape") setOpen(false);
             }}
-            className="min-h-[54px] w-full rounded-xl border-2 border-transparent bg-white py-3 pr-4 pl-12 font-display text-base text-ink [appearance:none] placeholder:text-[#6b7588] [&::-webkit-search-cancel-button]:[-webkit-appearance:none]"
+            className="min-h-[54px] w-full rounded-xl border-2 border-transparent bg-white py-3 pr-4 pl-12 font-display text-base text-ink shadow-[0_0_0_0_rgba(255,183,3,0)] transition-[border-color,box-shadow] duration-200 outline-none [appearance:none] placeholder:text-[#6b7588] focus:border-signal focus:shadow-[0_0_0_5px_rgba(255,183,3,0.25)] [&::-webkit-search-cancel-button]:[-webkit-appearance:none]"
           />
         </div>
       </form>
@@ -97,7 +97,7 @@ export default function SiteSearch({ index }: { index: SearchEntry[] }) {
           id="site-search-results"
           role="listbox"
           aria-label="Search results"
-          className="absolute top-[calc(100%+0.5rem)] right-0 left-0 z-30 m-0 max-h-92 list-none overflow-y-auto rounded-xl bg-white p-0 text-ink shadow-[0_28px_54px_-26px_rgba(0,0,0,0.7)]"
+          className="animate-menu-in absolute top-[calc(100%+0.5rem)] right-0 left-0 z-30 m-0 max-h-92 list-none overflow-y-auto rounded-xl bg-white p-0 text-ink shadow-[0_28px_54px_-26px_rgba(0,0,0,0.7)]"
         >
           {matches.length === 0 ? (
             <li className="px-4 py-3.5 text-sm text-muted">
@@ -115,7 +115,7 @@ export default function SiteSearch({ index }: { index: SearchEntry[] }) {
                 <a
                   href={entry.url}
                   onClick={() => setOpen(false)}
-                  className="flex flex-col gap-0.5 px-4 py-3 no-underline hover:bg-[#eef1f6] focus-visible:bg-[#eef1f6]"
+                  className="flex flex-col gap-0.5 px-4 py-3 no-underline transition-[background-color,padding] duration-150 hover:bg-[#eef1f6] hover:pl-5 focus-visible:bg-[#eef1f6]"
                 >
                   <span className="text-[0.6875rem] font-bold tracking-[0.06em] text-muted uppercase">
                     {entry.kind}

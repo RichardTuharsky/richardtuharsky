@@ -93,14 +93,16 @@ export default function SignupForm({
               setStatus({ tone: "", message: "" });
             }
           }}
-          className={`min-h-[50px] min-w-0 flex-[1_1_14rem] rounded-[10px] border-2 bg-white px-4 py-3 font-display text-base text-ink placeholder:text-[#6b7588] ${
+          className={`min-h-[50px] min-w-0 flex-[1_1_14rem] rounded-[10px] border-2 bg-white px-4 py-3 font-display text-base text-ink transition-[border-color,box-shadow] duration-200 outline-none placeholder:text-[#6b7588] focus:border-signal focus:shadow-[0_0_0_5px_rgba(255,183,3,0.25)] ${
             invalid ? "border-line-1" : "border-transparent"
           }`}
         />
         <button
           type="submit"
-          className={`min-h-[50px] flex-none cursor-pointer rounded-[10px] border-0 px-5.5 py-3 font-display text-base font-bold hover:brightness-105 ${
-            onNight ? "bg-signal text-night" : "bg-night text-white"
+          className={`min-h-[50px] flex-none cursor-pointer rounded-[10px] border-0 px-5.5 py-3 font-display text-base font-bold transition-[transform,box-shadow,filter] duration-200 hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0 ${
+            onNight
+              ? "bg-signal text-night hover:shadow-[0_6px_18px_-6px_rgba(255,183,3,0.65)]"
+              : "bg-night text-white hover:shadow-[0_6px_18px_-6px_rgba(20,33,61,0.6)]"
           }`}
         >
           {buttonLabel}

@@ -39,27 +39,27 @@ function NavDropdown({
         aria-expanded={open}
         aria-controls={menuId}
         onClick={onToggle}
-        className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 border-0 bg-transparent p-0 font-display text-[0.9375rem] text-[#e8ecf4] hover:underline hover:underline-offset-4"
+        className="nav-link inline-flex min-h-11 cursor-pointer items-center gap-1.5 border-0 bg-transparent p-0 font-display text-[0.9375rem] text-[#e8ecf4]"
       >
         {label}
         <ChevronDown
           size={13}
           strokeWidth={2.2}
           aria-hidden="true"
-          className={`transition-transform ${open ? "rotate-180" : ""}`}
+          className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open ? (
         <ul
           id={menuId}
-          className="absolute top-[calc(100%+0.3rem)] left-0 z-40 m-0 min-w-64 list-none rounded-xl bg-white p-1.5 text-ink shadow-[0_26px_50px_-26px_rgba(0,0,0,0.7)] max-sm:right-0 max-sm:left-auto"
+          className="animate-menu-in absolute top-[calc(100%+0.3rem)] left-0 z-40 m-0 min-w-64 list-none rounded-xl bg-white p-1.5 text-ink shadow-[0_26px_50px_-26px_rgba(0,0,0,0.7)] max-sm:right-0 max-sm:left-auto"
         >
           {items.map((item) => (
             <li key={item.label}>
               <Link
                 href={item.filter ? `/?filter=${item.filter}#articles` : "/#articles"}
                 onClick={onNavigate}
-                className="block rounded-lg px-3 py-2.5 text-[0.9375rem] text-ink no-underline hover:bg-[#eef1f6]"
+                className="block rounded-lg px-3 py-2.5 text-[0.9375rem] text-ink no-underline transition-[background-color,padding] duration-150 hover:bg-[#eef1f6] hover:pl-4 focus-visible:bg-[#eef1f6]"
               >
                 {item.label}
               </Link>
@@ -96,39 +96,13 @@ export default function Header() {
     <header className="wrap flex flex-wrap items-center justify-between gap-x-8 gap-y-3 py-6">
       <Link
         href="/"
-        className="flex flex-col gap-1.5 text-on-night no-underline"
-        aria-label="KEEP: Know, Engage, Expand, Protect. By Richard Tuharsky. Home"
+        className="flex flex-col gap-1 text-on-night no-underline"
+        aria-label="Sync and Send, home"
       >
-        {/* KEEP lockup: oversized coloured initials spell the acronym,
-            the small caps complete each stage word. */}
-        <span
-          aria-hidden="true"
-          className="flex flex-wrap items-baseline gap-y-1 font-display leading-none"
-        >
-          {[
-            { big: "K", rest: "now", color: "var(--color-line-1)", meaning: "customer data" },
-            { big: "E", rest: "ngage", color: "var(--color-line-2)", meaning: "journeys" },
-            { big: "E", rest: "xpand", color: "var(--color-line-3)", meaning: "LTV" },
-            { big: "P", rest: "rotect", color: "var(--color-line-4)", meaning: "churn prevention" },
-          ].map((word, index) => (
-            <span
-              key={word.big + word.rest}
-              title={`${word.big}${word.rest}: ${word.meaning}`}
-              className={`wdth-112 inline-flex items-baseline text-[0.6875rem] font-semibold tracking-[0.04em] text-on-night-soft uppercase sm:text-[0.8125rem] ${
-                index > 0
-                  ? "ml-1.5 border-l border-board-rule pl-1.5 sm:ml-2.5 sm:pl-2.5"
-                  : ""
-              }`}
-            >
-              <b
-                className="wdth-125 mr-[0.04em] translate-y-[0.04em] text-[1.25rem] font-[880] tracking-[-0.02em] sm:text-[1.625rem]"
-                style={{ color: word.color }}
-              >
-                {word.big}
-              </b>
-              {word.rest}
-            </span>
-          ))}
+        <span className="wdth-125 font-display text-[1.375rem] leading-none font-[850] tracking-[-0.01em]">
+          Sync{" "}
+          <span className="font-body font-medium italic text-signal">&amp;</span>{" "}
+          Send
         </span>
         <span className="font-display text-sm text-on-night-muted">
           by Richard Tuharsky
@@ -157,13 +131,13 @@ export default function Header() {
         />
         <Link
           href="/#about"
-          className="inline-flex min-h-11 items-center text-[#e8ecf4] no-underline hover:underline hover:underline-offset-4"
+          className="nav-link inline-flex min-h-11 items-center text-[#e8ecf4] no-underline"
         >
           About
         </Link>
         <Link
           href="/#subscribe"
-          className="inline-flex min-h-11 items-center rounded-full bg-signal px-4.5 font-bold text-night no-underline hover:brightness-105"
+          className="inline-flex min-h-11 items-center rounded-full bg-signal px-4.5 font-bold text-night no-underline shadow-[0_0_0_0_rgba(255,183,3,0)] transition-[transform,box-shadow,filter] duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_18px_-6px_rgba(255,183,3,0.65)] hover:brightness-105 active:translate-y-0"
         >
           Subscribe
         </Link>

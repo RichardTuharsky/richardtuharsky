@@ -8,7 +8,7 @@ import { formatLongDate } from "@/lib/format";
 export function GuideCard({ guide }: { guide: GuideMeta }) {
   const topic = TOPICS[guide.topic];
   return (
-    <article className="relative overflow-hidden rounded-2xl border border-rule bg-surface shadow-[0_24px_48px_-32px_rgba(20,33,61,0.45)]">
+    <article className="group relative overflow-hidden rounded-2xl border border-rule bg-surface shadow-[0_24px_48px_-32px_rgba(20,33,61,0.45)] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_32px_56px_-30px_rgba(20,33,61,0.55)]">
       <span
         aria-hidden="true"
         className="absolute inset-y-0 left-0 w-2.5"
@@ -39,7 +39,12 @@ export function GuideCard({ guide }: { guide: GuideMeta }) {
             className="inline-flex min-h-11 items-center gap-1.5 no-underline hover:underline"
           >
             Read the guide
-            <ArrowRight size={17} strokeWidth={2.4} aria-hidden="true" />
+            <ArrowRight
+              size={17}
+              strokeWidth={2.4}
+              aria-hidden="true"
+              className="transition-transform duration-200 group-hover:translate-x-1"
+            />
           </Link>
         </p>
       </div>
