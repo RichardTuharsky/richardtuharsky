@@ -57,8 +57,8 @@ export default async function GuidePage({ params }: GuidePageProps) {
                 </Link>
               </li>
               <li className="after:ml-1.5 after:content-['/']">
-                <Link href="/#guides" className="text-on-night-muted">
-                  Guides
+                <Link href="/#articles" className="text-on-night-muted">
+                  Articles
                 </Link>
               </li>
               <li>
@@ -162,8 +162,8 @@ export default async function GuidePage({ params }: GuidePageProps) {
           />
 
           <div className="flex flex-wrap justify-between gap-3 border-t border-rule pt-6 font-display text-[0.9375rem]">
-            <Link href="/#guides" className="font-semibold text-ink">
-              Back to all guides
+            <Link href="/#articles" className="font-semibold text-ink">
+              Back to all articles
             </Link>
             <a href="#top" className="font-semibold text-ink">
               Back to top
@@ -187,8 +187,8 @@ export default async function GuidePage({ params }: GuidePageProps) {
               Get the next guide by email
             </h2>
             <p className="text-on-night-soft">
-              Practical troubleshooting for CRM, Data 360 and Marketing Cloud
-              data, plus the Automation Reliability Checklist when you join.
+              Subscribe to get the latest guides and practical notes for CRM,
+              Data 360 and Marketing Cloud data.
             </p>
           </div>
           <div className="min-w-0 flex-[1_1_23.75rem]">

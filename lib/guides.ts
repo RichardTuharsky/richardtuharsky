@@ -71,11 +71,4 @@ export function getAllGuides(): GuideMeta[] {
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 }
 
-export function formatLongDate(iso: string): string {
-  return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
+export { formatLongDate } from "./format";

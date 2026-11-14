@@ -1,107 +1,169 @@
 import Link from "next/link";
-import ChecklistTicket from "@/components/ChecklistTicket";
-import DepartureBoard from "@/components/DepartureBoard";
-import { GuideCard, UpcomingList, type UpcomingGuide } from "@/components/GuideCard";
+import { Suspense } from "react";
+import ArticlesSection, {
+  type UpcomingArticle,
+} from "@/components/ArticlesSection";
 import PlatformRow from "@/components/PlatformRow";
-import RouteMap from "@/components/RouteMap";
 import SignupForm from "@/components/SignupForm";
+import SiteSearch, { type SearchEntry } from "@/components/SiteSearch";
 import { getAllGuides } from "@/lib/guides";
+import { TOPICS } from "@/lib/topics";
 
-const UPCOMING: UpcomingGuide[] = [
+/** Platform/theme tags per guide slug, used by the nav-dropdown filters. */
+const GUIDE_TAGS: Record<string, string[]> = {
+  "data-360-crm-data-stream-troubleshooting": ["data-360", "customer-data"],
+};
+
+const UPCOMING: UpcomingArticle[] = [
   {
     title: "Synced isn't the same as fresh",
     topic: "usable-audiences",
     summary:
       "How to tell when your audience data last changed, and why a successful sync can still leave you with yesterday's customers.",
+    tags: ["mce", "data-360", "customer-data"],
   },
   {
     title: "The automation that failed at 3am",
     topic: "dependable-automation",
     summary:
       "Who finds out first when an overnight step breaks, and how to make sure it's you and not your customers.",
+    tags: ["mce", "mc-next"],
   },
   {
     title: "The lead nobody followed up",
     topic: "sales-handoffs",
     summary:
       "Tracing one lead from form fill to sales task, and the places it usually disappears.",
+    tags: ["mce", "customer-data"],
   },
   {
     title: "One person, three IDs",
     topic: "data-foundations",
     summary:
       "How duplicate records and mismatched identifiers creep in between CRM and marketing, and how to stop them.",
+    tags: ["data-360", "braze", "customer-data"],
+  },
+  {
+    title: "The segments that actually move LTV",
+    label: "LTV",
+    line: "#2ec4b6",
+    summary:
+      "Turning order and engagement history into audiences worth expanding, and measuring whether the expansion paid for itself.",
+    tags: ["data-360", "mce", "ltv"],
+  },
+  {
+    title: "Churn signals you already have",
+    label: "Retention",
+    line: "#ff5d73",
+    summary:
+      "The drop-off patterns sitting in your existing event data, and how to act on them before the unsubscribe.",
+    tags: ["braze", "mce", "retention"],
   },
 ];
 
-const kitConsent = (
-  <>
-    You&rsquo;ll also get new issues of Sync &amp; Send. Unsubscribe anytime.{" "}
-    <Link href="#privacy">Privacy</Link>
-  </>
-);
-
 export default function HomePage() {
   const guides = getAllGuides();
+
+  const searchIndex: SearchEntry[] = [
+    ...guides.map((guide) => ({
+      title: guide.title,
+      description: guide.summary,
+      kind: "Guide" as const,
+      url: `/guides/${guide.slug}`,
+      keywords: `${TOPICS[guide.topic].name} ${(GUIDE_TAGS[guide.slug] ?? []).join(" ")} salesforce crm data cloud cdp ingestion troubleshooting sync`,
+    })),
+    ...UPCOMING.map((item) => ({
+      title: item.title,
+      description: `Coming up. ${item.summary}`,
+      kind: "Article" as const,
+      url: "/#articles",
+      keywords: `${item.topic ? TOPICS[item.topic].name : item.label} ${item.tags.join(" ")}`,
+    })),
+    {
+      title: "Marketing Cloud Engagement",
+      description: "Journeys, automations, data extensions.",
+      kind: "Platform",
+      url: "/?filter=mce#articles",
+      keywords:
+        "sfmc marketing cloud engagement journey builder automation studio ampscript sql query",
+    },
+    {
+      title: "Marketing Cloud Next",
+      description: "Core-platform journeys and migration.",
+      kind: "Platform",
+      url: "/?filter=mc-next#articles",
+      keywords: "mc next marketing cloud next core platform migration data cloud native",
+    },
+    {
+      title: "Data 360 and other CDPs",
+      description: "Ingestion, segments, activation.",
+      kind: "Platform",
+      url: "/?filter=data-360#articles",
+      keywords:
+        "data 360 data cloud cdp ingestion data streams segments activation identity dlo dmo",
+    },
+    {
+      title: "Braze",
+      description: "Data feeds, audiences, identifiers.",
+      kind: "Platform",
+      url: "/?filter=braze#articles",
+      keywords: "braze canvas segments catalogs connected content external id",
+    },
+    {
+      title: "Sales Cloud and Service Cloud",
+      description: "Leads, routing, Flow, handoffs.",
+      kind: "Platform",
+      url: "/#platforms",
+      keywords: "sales cloud service cloud crm leads campaigns flow routing tasks",
+    },
+    {
+      title: "About Richard",
+      description:
+        "Five years on enterprise Salesforce and Marketing Cloud projects.",
+      kind: "About",
+      url: "/#about",
+      keywords: "about richard tuharsky salesforce consultant author keep know engage expand protect",
+    },
+    {
+      title: "Subscribe",
+      description: "Get new issues of Sync & Send by email.",
+      kind: "Page",
+      url: "/#subscribe",
+      keywords: "subscribe newsletter email signup updates news",
+    },
+  ];
+
   return (
     <main>
       <div className="bg-night text-on-night">
         <section
-          className="wrap flex flex-wrap items-center gap-x-14 gap-y-12 pt-[clamp(1.75rem,5vw,4rem)] pb-[clamp(2.5rem,5vw,3.5rem)]"
+          className="wrap flex min-h-[min(62vh,34rem)] flex-col items-center justify-center gap-7 pt-[clamp(3rem,9vw,6.5rem)] pb-[clamp(3.5rem,10vw,7rem)] text-center"
           aria-labelledby="hero-title"
         >
-          <div className="flex min-w-0 flex-[1_1_30rem] flex-col gap-6">
-            <h1
-              id="hero-title"
-              className="wdth-125 text-[clamp(2.25rem,5vw,4.5rem)] leading-[0.98] font-[880] tracking-[-0.03em]"
-            >
-              Your campaign is only as fresh as the data behind it.
-            </h1>
-            <p className="max-w-[32.5rem] text-[clamp(1.125rem,1.7vw,1.25rem)] leading-[1.55] text-on-night-soft">
-              Practical notes on customer data, automation and
-              marketing-to-sales handoffs, for the people who keep marketing
-              and CRM systems running.
-            </p>
-            <SignupForm
-              label="Get the Automation Reliability Checklist"
-              buttonLabel="Get the checklist"
-              surface="night"
-              consent={kitConsent}
-            />
-          </div>
-          <DepartureBoard />
+          <h1
+            id="hero-title"
+            className="wdth-125 max-w-[50rem] text-[clamp(2.25rem,5vw,4.5rem)] leading-[0.98] font-[880] tracking-[-0.03em]"
+          >
+            Your campaign is only as fresh as the data behind it.
+          </h1>
+          <p className="max-w-[40rem] text-[clamp(1.125rem,1.7vw,1.25rem)] leading-[1.55] text-on-night-soft">
+            Practical notes on customer data, automation and marketing-to-sales
+            handoffs, for the people who keep marketing and CRM systems
+            running.
+          </p>
+          <SiteSearch index={searchIndex} />
         </section>
-
-        <PlatformRow />
       </div>
 
-      <section
-        className="wrap py-section-sm md:py-section"
-        id="guides"
-        aria-labelledby="guides-title"
-      >
-        <div className="mb-[clamp(2.25rem,5vw,3.5rem)] flex max-w-[44rem] flex-col gap-3">
-          <h2
-            id="guides-title"
-            className="wdth-125 text-[clamp(1.875rem,4vw,2.75rem)] leading-none font-[850] tracking-[-0.025em]"
-          >
-            Guides
-          </h2>
-          <p className="max-w-[37.5rem] text-muted">
-            The first guide is out. Subscribe to get the rest when they&rsquo;re
-            published.
-          </p>
-        </div>
-        <div className="flex flex-col gap-10">
-          {guides.map((guide) => (
-            <GuideCard key={guide.slug} guide={guide} />
-          ))}
-          <UpcomingList items={UPCOMING} />
-        </div>
-      </section>
-
-      <RouteMap />
-      <ChecklistTicket />
+      <Suspense>
+        <ArticlesSection
+          guides={guides.map((guide) => ({
+            ...guide,
+            tags: GUIDE_TAGS[guide.slug] ?? [],
+          }))}
+          upcoming={UPCOMING}
+        />
+      </Suspense>
 
       <section
         className="wrap border-t border-rule py-section-sm md:py-section"
@@ -145,6 +207,10 @@ export default function HomePage() {
       </section>
 
       <div className="bg-night text-on-night">
+        <div id="platforms" className="pt-[clamp(2rem,5vw,3.5rem)]">
+          <PlatformRow />
+        </div>
+
         <section
           className="wrap flex flex-wrap items-end gap-x-16 gap-y-8 pt-section-sm pb-[clamp(2.5rem,6vw,4.5rem)] md:pt-section"
           id="subscribe"
@@ -158,8 +224,8 @@ export default function HomePage() {
               Catch the next issue
             </h2>
             <p className="text-on-night-soft">
-              Practical notes you can apply to your own setup, plus the
-              checklist when you join.
+              Subscribe to get the latest news, guides and practical notes you
+              can apply to your own setup.
             </p>
           </div>
           <div className="min-w-0 flex-[1_1_23.75rem]">
@@ -169,7 +235,8 @@ export default function HomePage() {
               surface="night"
               consent={
                 <>
-                  Unsubscribe anytime. <Link href="#privacy">Privacy</Link>
+                  New issues of Sync &amp; Send. Unsubscribe anytime.{" "}
+                  <Link href="#privacy">Privacy</Link>
                 </>
               }
             />

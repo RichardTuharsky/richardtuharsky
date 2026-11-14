@@ -26,9 +26,9 @@ export default function PrivacyDetails() {
         Privacy
       </summary>
       <p className="mb-2.5 font-body text-[0.9375rem] leading-relaxed text-on-night-soft">
-        When you sign up, I store your email address to send you the checklist
-        and new issues of Sync &amp; Send. Emails are sent through Kit, my email
-        provider, which stores your address on my behalf.
+        When you sign up, I store your email address to send you new issues of
+        Sync &amp; Send. Emails are sent through Kit, my email provider, which
+        stores your address on my behalf.
       </p>
       <p className="font-body text-[0.9375rem] leading-relaxed text-on-night-soft">
         You can unsubscribe from any email with one click, or ask me to delete

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { GuideMeta } from "@/lib/guides";
-import { TOPICS, type TopicId } from "@/lib/topics";
-import { formatLongDate } from "@/lib/guides";
+import { TOPICS } from "@/lib/topics";
+import { formatLongDate } from "@/lib/format";
 
 /** Featured card for a published guide. */
 export function GuideCard({ guide }: { guide: GuideMeta }) {
@@ -47,42 +47,3 @@ export function GuideCard({ guide }: { guide: GuideMeta }) {
   );
 }
 
-export interface UpcomingGuide {
-  title: string;
-  topic: TopicId;
-  summary: string;
-}
-
-/** Compact, visibly secondary list of upcoming guides. */
-export function UpcomingList({ items }: { items: UpcomingGuide[] }) {
-  return (
-    <div className="flex flex-col gap-3">
-      <p className="font-display text-sm font-semibold text-muted">
-        Coming up
-      </p>
-      <ul className="m-0 flex list-none flex-col border-t border-rule p-0">
-        {items.map((item) => {
-          const topic = TOPICS[item.topic];
-          return (
-            <li
-              key={item.title}
-              className="flex flex-wrap items-baseline gap-x-5 gap-y-1 border-b border-rule py-3.5"
-            >
-              <span className="font-display text-[1.0625rem] font-semibold">
-                {item.title}
-              </span>
-              <span className="flex items-center gap-2 font-display text-[0.8125rem] font-semibold text-muted">
-                <span
-                  aria-hidden="true"
-                  className="size-2 rounded-full"
-                  style={{ background: topic.line }}
-                />
-                {topic.name}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
