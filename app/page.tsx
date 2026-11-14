@@ -1,9 +1,38 @@
 import Link from "next/link";
 import ChecklistTicket from "@/components/ChecklistTicket";
 import DepartureBoard from "@/components/DepartureBoard";
+import { GuideCard, UpcomingList, type UpcomingGuide } from "@/components/GuideCard";
 import PlatformRow from "@/components/PlatformRow";
 import RouteMap from "@/components/RouteMap";
 import SignupForm from "@/components/SignupForm";
+import { getAllGuides } from "@/lib/guides";
+
+const UPCOMING: UpcomingGuide[] = [
+  {
+    title: "Synced isn't the same as fresh",
+    topic: "usable-audiences",
+    summary:
+      "How to tell when your audience data last changed, and why a successful sync can still leave you with yesterday's customers.",
+  },
+  {
+    title: "The automation that failed at 3am",
+    topic: "dependable-automation",
+    summary:
+      "Who finds out first when an overnight step breaks, and how to make sure it's you and not your customers.",
+  },
+  {
+    title: "The lead nobody followed up",
+    topic: "sales-handoffs",
+    summary:
+      "Tracing one lead from form fill to sales task, and the places it usually disappears.",
+  },
+  {
+    title: "One person, three IDs",
+    topic: "data-foundations",
+    summary:
+      "How duplicate records and mismatched identifiers creep in between CRM and marketing, and how to stop them.",
+  },
+];
 
 const kitConsent = (
   <>
@@ -13,6 +42,7 @@ const kitConsent = (
 );
 
 export default function HomePage() {
+  const guides = getAllGuides();
   return (
     <main>
       <div className="bg-night text-on-night">
@@ -44,6 +74,31 @@ export default function HomePage() {
 
         <PlatformRow />
       </div>
+
+      <section
+        className="wrap py-section-sm md:py-section"
+        id="guides"
+        aria-labelledby="guides-title"
+      >
+        <div className="mb-[clamp(2.25rem,5vw,3.5rem)] flex max-w-[44rem] flex-col gap-3">
+          <h2
+            id="guides-title"
+            className="wdth-125 text-[clamp(1.875rem,4vw,2.75rem)] leading-none font-[850] tracking-[-0.025em]"
+          >
+            Guides
+          </h2>
+          <p className="max-w-[37.5rem] text-muted">
+            The first guide is out. Subscribe to get the rest when they&rsquo;re
+            published.
+          </p>
+        </div>
+        <div className="flex flex-col gap-10">
+          {guides.map((guide) => (
+            <GuideCard key={guide.slug} guide={guide} />
+          ))}
+          <UpcomingList items={UPCOMING} />
+        </div>
+      </section>
 
       <RouteMap />
       <ChecklistTicket />

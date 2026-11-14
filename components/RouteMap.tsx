@@ -8,7 +8,7 @@ import { TOPIC_LIST } from "@/lib/topics";
 export default function RouteMap() {
   return (
     <section
-      className="wrap py-section-sm md:py-section"
+      className="wrap border-t border-rule py-section-sm md:py-section"
       id="topics"
       aria-labelledby="topics-title"
     >

@@ -1,0 +1,193 @@
+---
+title: "Data 360 is connected, but CRM data won't load"
+headline: "Data 360 Is Connected, but CRM Data Won't Load: A Troubleshooting Guide"
+summary: "A practical guide to finding where Salesforce CRM data stops reaching Data 360."
+topic: data-foundations
+crumb: "Data 360 troubleshooting"
+stopTag: "Stop 1: Data foundations. Data 360 and Salesforce CRM"
+readTime: 9
+docsChecked: "2026-10-31"
+publishedAt: "2026-11-12"
+toc:
+  - id: start
+    label: "Find your starting point"
+  - id: stage-1
+    num: "Stage 01"
+    label: "Capture the actual failure"
+  - id: stage-2
+    num: "Stage 02"
+    label: "Verify the correct CRM connection"
+  - id: stage-3
+    num: "Stage 03"
+    label: "Check source objects, fields and connector permissions"
+  - id: stage-4
+    num: "Stage 04"
+    label: "Check Data Kit deployment dependencies"
+  - id: stage-5
+    num: "Stage 05"
+    label: "Check whether the stream is batch or streaming"
+  - id: stage-6
+    num: "Stage 06"
+    label: "Trace a record through the DLO and DMO"
+  - id: stage-7
+    num: "Stage 07"
+    label: "Recover, then verify a real update"
+  - id: stage-8
+    num: "Stage 08"
+    label: "Record ownership or escalate with evidence"
+  - id: resolved
+    label: "What \"resolved\" should mean"
+---
+
+<Intro>
+  <p>An active CRM connection is one checkpoint. You still need to establish that the connector can read the source, the data stream is processing, and the required data reaches the model used by your business.</p>
+  <p>This guide covers the Salesforce CRM connector into Data 360, including Sales Cloud and Service Cloud data and issues following a Data Kit deployment. Marketing Cloud Connect for SFMC Engagement is a separate integration.</p>
+  <p>You'll need access to the affected Data 360 stream, a CRM administrator who can inspect source objects and connector permissions, and one record you can safely use for validation. Some screens and permission-set names still use "Data Cloud".</p>
+</Intro>
+
+<Block id="start" title="Find your starting point">
+  <StartTable>
+    <tr><td>A stream failed and you don't know why</td><td><a href="#stage-1">Stage 1: capture the error</a></td></tr>
+    <tr><td>Authentication or trust errors, particularly after a sandbox refresh</td><td><a href="#stage-2">Stage 2: verify the connection</a></td></tr>
+    <tr><td><code>INVALID_FIELD</code>, <code>INVALID_TYPE</code>, or missing source fields</td><td><a href="#stage-3">Stage 3: check source access</a></td></tr>
+    <tr><td>Failure immediately after a Data Kit deployment</td><td><a href="#stage-4">Stage 4: check deployment dependencies</a></td></tr>
+    <tr><td>Data arrives more slowly than expected</td><td><a href="#stage-5">Stage 5: check processing mode</a></td></tr>
+    <tr><td>Ingestion succeeds, but the required modeled data is missing</td><td><a href="#stage-6">Stage 6: inspect the DLO and DMO</a></td></tr>
+  </StartTable>
+</Block>
+
+<Stage id="stage-1" num="Stage 01" title="Capture the actual failure">
+  <Goal><strong>Goal:</strong> identify the failing stream and operation before changing configuration.</Goal>
+  <Steps>
+    <li>In Data 360, open <Path>Data Streams</Path> and select the affected stream.</li>
+    <li>Open <Path>Refresh History</Path>. Record the failed operation's timestamp, status, refresh mode and record statistics. Open its error details; download the log when available.</li>
+    <li>Note the source org, connection, object and last successful refresh. Check <a href="https://status.salesforce.com/">Salesforce Trust</a> for an incident affecting your service and instance at that time.</li>
+    <li>Record what changed before the failure: a sandbox refresh, deployment, field deletion or permissions change. Treat this as evidence to investigate, rather than proof of the cause.</li>
+  </Steps>
+  <Pass><strong>Passing result:</strong> you can name the failed operation and its exact error, or establish that no operation has started.</Pass>
+  <Resources label="Official resource">
+    <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_datastream_dlo_refresh_history.htm&language=en_US">Data Stream and Data Lake Object Refresh History</a>
+  </Resources>
+</Stage>
+
+<Stage id="stage-2" num="Stage 02" title="Verify the correct CRM connection">
+  <Goal><strong>Goal:</strong> establish whether the connection's trust relationship is healthy.</Goal>
+  <Steps>
+    <li>Open <Path>Setup → Data 360 Setup → Salesforce Integrations → Salesforce CRM</Path>.</li>
+    <li>Locate the connection used by the failing stream. Open its row-action menu and select <Path>Verify Connection</Path>.</li>
+    <li>Follow the result-specific instructions. If verification succeeds, continue to Stage 3. If reauthentication is required, use the documented procedure for that connection type.</li>
+  </Steps>
+  <Note>A sandbox refresh changes the sandbox Org ID and can break the existing trust relationship. Reauthentication can restore it. The recovery procedure differs for home-org, sandbox, other production/development and Data 360 One companion connections.</Note>
+  <Note warn>Don't disconnect a production connection as a generic troubleshooting step. First identify which recovery path applies and which streams or targets depend on it.</Note>
+  <Pass><strong>Passing result:</strong> the intended source org is verified and authenticated. Data access and ingestion still need their own checks.</Pass>
+  <Resources label="Official resource">
+    <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_verify_and_reauthenticate_a_salesforce_crm_connection.htm&language=en_US&type=5">Verify and Reauthenticate a Salesforce CRM Connection</a>
+  </Resources>
+</Stage>
+
+<Stage id="stage-3" num="Stage 03" title="Check source objects, fields and connector permissions">
+  <Goal><strong>Goal:</strong> prove the connector has access to the schema required by the stream.</Goal>
+  <Steps>
+    <li>In the source CRM org, open <Path>Setup → Object Manager</Path>. Find the object and field API names from the error log and confirm they still exist.</li>
+    <li>Open <Path>Setup → Permission Sets → Data Cloud Salesforce Connector → Object Settings</Path>. Have the CRM administrator check the required object and field access, including related objects referenced by lookup fields. Salesforce documents Read, View All Records and View All Fields requirements; review the scope before changing access.</li>
+    <li>Review <Path>Setup → View Setup Audit Trail</Path> around the first failure. Look for deleted fields, changed permissions or removal of the connector permission-set assignment.</li>
+  </Steps>
+  <Note>The connector uses the Platform Integration User. A human administrator being able to see a field does not establish that the connector can read it.</Note>
+  <p>For a deliberately deleted field, follow Salesforce's procedure to disable the obsolete stream field and review its downstream dependencies. For lost access, restore the required, approved access.</p>
+  <Pass><strong>Passing result:</strong> the required schema exists and the connector has the documented access to it.</Pass>
+  <Resources>
+    <a href="https://help.salesforce.com/s/articleView?id=000395797&language=en_US&type=1">CRM refresh errors caused by missing fields or objects</a>
+    <a href="https://help.salesforce.com/s/articleView?id=sf.c360_a_enable_user_permissions_external_salesforce_org.htm&language=en_US&type=5">Salesforce CRM permissions</a>
+  </Resources>
+</Stage>
+
+<Stage id="stage-4" num="Stage 04" title="Check Data Kit deployment dependencies">
+  <Goal>Use this stage when the issue started after a deployment. Otherwise, continue to <a href="#stage-5">Stage 5</a>.</Goal>
+  <Steps>
+    <li>Confirm the target org has the intended CRM connection and every source object and field referenced by the stream.</li>
+    <li>Review the kit's dependencies and publishing sequence, including required DMOs, fields and relationships. For sandbox-to-production change sets, confirm the kit is the supported DevOps type.</li>
+    <li>Inspect the deployed connector and stream states. Follow Salesforce's post-deployment activation procedure; where connector activation is required before CRM streams can deploy, complete that step before the documented redeployment.</li>
+  </Steps>
+  <Note>A successful metadata deployment does not establish that ingestion has started. Verify both separately.</Note>
+  <Pass><strong>Passing result:</strong> the dependencies and connection are available, the stream is deployed, and its ingestion state is understood.</Pass>
+  <Resources>
+    <a href="https://help.salesforce.com/s/articleView?id=sf.c360_a_install_package_kit.htm&language=en_US&type=5">Create a Data Stream from a Data Kit</a>
+    <a href="https://help.salesforce.com/s/articleView?id=004811292&language=en_US&type=1">Data Kit considerations and common issues</a>
+    <a href="https://trailhead.salesforce.com/content/learn/modules/data-360-sandboxes/deploy-and-validate-your-data-360-configurations">Post-deployment validation</a>
+  </Resources>
+</Stage>
+
+<Stage id="stage-5" num="Stage 05" title="Check whether the stream is batch or streaming">
+  <Goal><strong>Goal:</strong> distinguish an ingestion failure from a processing mode that doesn't meet your freshness requirement.</Goal>
+  <Steps>
+    <li>Open the stream's record page and inspect <Path>Frequency</Path> to identify its processing mode.</li>
+    <li>If you expected streaming, check eligibility. Initial ingestion uses batch processing. Unsupported objects or batch-ingested fields, including some formula fields, can prevent streaming.</li>
+    <li>Compare the actual refresh history with the agreed data-freshness window. Investigate missing or failed runs separately from processing latency.</li>
+  </Steps>
+  <Note warn>The Data Cloud Salesforce Connector permission set is intended for the Platform Integration User. Salesforce warns that assigning other users to it can interfere with streaming permissions; don't use it as a general human-user access role.</Note>
+  <Pass><strong>Passing result:</strong> you know the actual processing mode and whether observed timing is expected, failing or unsuitable for the use case.</Pass>
+  <Resources>
+    <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_crm_connector_streaming.htm&language=en_US&type=5">CRM Connector Streaming</a>
+    <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_data_stream_schedule.htm&language=en_US&type=5">Data Stream Schedule</a>
+  </Resources>
+</Stage>
+
+<Stage id="stage-6" num="Stage 06" title="Trace a record through the DLO and DMO">
+  <Goal><strong>Goal:</strong> locate the boundary between missing source data and missing modeled data.</Goal>
+  <p>A Data Lake Object (DLO) holds ingested data. A Data Model Object (DMO) represents mapped data in the customer data model.</p>
+  <Steps>
+    <li>Open <Path>Data Explorer</Path>. Select the correct data space, choose the DLO and filter for your validation record using its source identifier.</li>
+    <li>Check the relevant source values. Then select the intended DMO and inspect the corresponding mapped values, accounting for the configured identifiers and relationships.</li>
+    <li>If the DLO contains the expected data but the DMO does not, open the stream's <Path>Data Mapping</Path> section and review its field mappings and relationships.</li>
+    <li>Use the observed stopping point to choose the next investigation. Missing DLO data leads back to ingestion; missing modeled data leads to mapping checks. If both are correct, investigate the specific identity-resolution, segmentation or activation step that consumes them.</li>
+  </Steps>
+  <Pass><strong>Passing result:</strong> the validation record and required values are present at each boundary you have checked.</Pass>
+  <Resources>
+    <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_view_your_data.htm&language=en_US&type=5">View Your Data in Data Explorer</a>
+    <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_map_custom_data_model_objects.htm&language=en_US&type=5">Map Data Model Objects</a>
+  </Resources>
+</Stage>
+
+<Stage id="stage-7" num="Stage 07" title="Recover, then verify a real update">
+  <Goal><strong>Goal:</strong> demonstrate that data moves correctly after the identified issue is resolved.</Goal>
+  <Steps>
+    <li>Apply the correction supported by your evidence. If a refresh is required, use <Path>Refresh Now</Path> for the affected stream and the refresh mode appropriate to its documented behavior.</li>
+    <li>Monitor the resulting operation. A full refresh replaces destination data and can process substantial volume. Some on-demand requests are ignored or handled differently depending on the stream's current state; avoid repeated clicks or overlapping recovery attempts.</li>
+    <li>Make an approved, reversible update to a validation record. Record the source time, confirm the value reaches the DLO and intended DMO, then verify the downstream business action within its agreed window.</li>
+  </Steps>
+  <Note>Example validation: a test customer's approved status change reaches the model used by a renewal audience. Check the resulting audience membership as a separate step, rather than treating a successful ingestion as proof that the campaign is ready.</Note>
+  <Pass><strong>Passing result:</strong> the expected value reaches the intended destination, required fields are complete, and no new relevant errors appear during the validation window.</Pass>
+  <Resources>
+    <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_crm_data_refresh_process_for_extraction.htm&language=en_US&type=5">Data Refresh Process for Extraction</a>
+    <a href="https://help.salesforce.com/s/articleView?id=c360_a_data_mapping.htm&language=en_US&type=5">Data Mapping</a>
+  </Resources>
+</Stage>
+
+<Stage id="stage-8" num="Stage 08" title="Record ownership or escalate with evidence">
+  <Goal><strong>Goal:</strong> leave a recoverable workflow and a useful investigation record.</Goal>
+  <Steps>
+    <li>Document the confirmed cause, correction, validation result and workflow owner. Record the expected freshness window and how exceptions will be noticed.</li>
+    <li>If the cause remains unresolved, open a Salesforce Support case with the affected org and connection, stream/object identifiers, exact errors, timestamps with time zones, recent changes and steps already attempted.</li>
+    <li>Include a minimal reproduction and a redacted example where permitted. Keep credentials, access tokens and unnecessary customer data out of attachments.</li>
+  </Steps>
+  <Note>Describe an unresolved failure as an observed symptom. Call it a confirmed defect only when you have supporting confirmation.</Note>
+  <Pass><strong>Passing result:</strong> the workflow has an owner and a recovery record, or Support has enough evidence to investigate the remaining failure.</Pass>
+  <Resources>
+    <a href="https://help.salesforce.com/s/articleView?id=000232342&language=en_US&type=1">Create a Support Case</a>
+    <a href="https://help.salesforce.com/s/articleView?id=data.c360_a_refresh_history.htm&language=en_US&type=5">Troubleshooting CRM Connections</a>
+  </Resources>
+</Stage>
+
+<Block id="resolved" title='What "resolved" should mean'>
+  <p>Use these recommended acceptance checks for the workflow you're repairing:</p>
+  <Resolved
+    items={[
+      "The intended source connection is verified.",
+      "Required objects and fields are accessible to the connector.",
+      "The stream completes the required operation successfully.",
+      "A controlled source update appears correctly in the DLO and intended DMO.",
+      "The required downstream audience or action uses the correct data.",
+      "Freshness, ownership and recovery expectations are documented.",
+    ]}
+  />
+</Block>
