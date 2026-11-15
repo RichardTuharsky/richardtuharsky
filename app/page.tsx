@@ -142,7 +142,7 @@ export default function HomePage() {
         >
           <h1
             id="hero-title"
-            className="wdth-125 max-w-[50rem] text-[clamp(2.25rem,5vw,4.5rem)] leading-[0.98] font-[880] tracking-[-0.03em]"
+            className="wdth-125 max-w-[50rem] text-[clamp(2.0625rem,5vw_-_3px,4.3125rem)] leading-[0.98] font-[880] tracking-[-0.03em]"
           >
             Your campaign is only as fresh as the data behind it.
           </h1>
