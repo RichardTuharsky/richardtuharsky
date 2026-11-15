@@ -42,9 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${archivo.variable} ${sourceSerif.variable}`}>
       <body>
-        <div className="bg-night text-on-night">
-          <Header />
-        </div>
+        <Header />
         {children}
         <Footer />
       </body>

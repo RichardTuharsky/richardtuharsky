@@ -45,7 +45,7 @@ export default function SiteSearch({ index }: { index: SearchEntry[] }) {
   return (
     <div
       ref={rootRef}
-      className="relative mx-auto w-full max-w-[34rem] text-left font-display"
+      className="relative w-full max-w-[34rem] text-left font-display"
       onBlur={(event) => {
         if (!rootRef.current?.contains(event.relatedTarget as Node)) {
           setOpen(false);

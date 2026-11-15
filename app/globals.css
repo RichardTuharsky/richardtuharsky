@@ -3,7 +3,8 @@
 /*
   Sync & Send design tokens: "Night run".
   Navy night bands over a paper middle; signal amber for primary actions only;
-  four route-line colours reserved for the four topics.
+  four route-line colours reserved for the four topics (values live in
+  lib/topics.ts; the line-* tokens below mirror them for utility classes).
 */
 @theme {
   --color-night: #14213d;
@@ -26,15 +27,25 @@
   --color-pass-bg: #e3f4f1;
   --color-warn: #8a5a00;
   --color-warn-bg: #fff2d6;
+  /* Neutral route line: reads on both night and paper. */
+  --color-route: rgb(120 132 156 / 0.45);
 
   --spacing-section: 6rem; /* 96px desktop rhythm */
   --spacing-section-sm: 3.5rem; /* 56px mobile rhythm */
   --spacing-wrap: 72rem;
+
+  --animate-menu-in: menu-in 0.18s ease-out both;
 }
 
 @theme inline {
   --font-display: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
   --font-body: var(--font-source-serif), Georgia, "Times New Roman", serif;
+}
+
+:root {
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+  /* x of the page route line: 12px inside the outer margin of the wrap column. */
+  --route-x: calc(max(0px, (100% - var(--spacing-wrap)) / 2) + 12px);
 }
 
 /* Archivo width axis: headings run wide. */
@@ -49,7 +60,34 @@
 @utility wrap {
   max-width: var(--spacing-wrap);
   margin-inline: auto;
-  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+  padding-inline: var(--gutter);
+}
+
+/* Timetable label: small uppercase Archivo with tabular figures. */
+@utility label {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  line-height: 1.3;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Faint route-map grid plus film grain, behind night heroes. */
+@utility night-texture {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(rgb(174 184 204 / 0.075) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(174 184 204 / 0.075) 1px, transparent 1px);
+  background-size:
+    180px 180px,
+    56px 56px,
+    56px 56px;
+  background-position:
+    0 0,
+    -1px -1px,
+    -1px -1px;
 }
 
 /* Nav links: amber underline grows from the left on hover/focus. */
@@ -80,10 +118,134 @@
   transform: scaleX(1);
 }
 
-/* Dropdowns and search results slide in. */
-@theme {
-  --animate-menu-in: menu-in 0.18s ease-out both;
+/*
+  Page route line. <Route> renders .route-scope with a .route-line child;
+  stop markers inside it grow a branch tick back to the line (md and up).
+*/
+.route-line {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--route-x);
+  width: 2px;
+  background: var(--color-route);
+  pointer-events: none;
+  z-index: 1;
 }
+@media (min-width: 48rem) {
+  .route-line {
+    display: block;
+  }
+  .route-scope .stop-marker::before {
+    content: "";
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    width: calc(var(--gutter) - 12px);
+    height: 2px;
+    margin-top: -1px;
+    background: var(--color-route);
+  }
+}
+
+/*
+  Stop tiles. <StopsGrid> writes --lx/--ly (light position in the tile),
+  --lo (light opacity) and --rx/--ry (lean) on each tile.
+*/
+.stop-tile {
+  position: relative;
+  isolation: isolate;
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.stop-tile::before,
+.stop-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: var(--lo, 0);
+  transition: opacity 0.4s ease;
+}
+/* Edge catch-light: the gradient shows only through a 1px border ring. */
+.stop-tile::before {
+  padding: 1px;
+  background: radial-gradient(
+    280px circle at var(--lx, 50%) var(--ly, 0%),
+    rgb(255 255 255 / 0.7),
+    transparent 65%
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  z-index: 2;
+}
+/* Soft light across the tile face. */
+.stop-tile::after {
+  background: radial-gradient(
+    460px circle at var(--lx, 50%) var(--ly, 0%),
+    rgb(255 255 255 / 0.07),
+    transparent 60%
+  );
+  z-index: -1;
+}
+
+/* Hero headline: each word syncs from grey and blurred to crisp. */
+@keyframes word-sync {
+  from {
+    opacity: 0.35;
+    filter: blur(8px);
+    color: #6b7588;
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    color: var(--sync-to, #ffffff);
+  }
+}
+.sync-word {
+  animation: word-sync 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 85ms + 150ms);
+}
+@keyframes tick-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.synced-tick {
+  animation: tick-in 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+  animation-delay: var(--tick-delay, 1.2s);
+}
+
+/* Hero system window lies back in perspective and sits up as it scrolls in. */
+@keyframes sit-up {
+  from {
+    transform: rotateX(24deg) scale(0.94);
+  }
+  to {
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .sit-up {
+      transform-origin: 50% 0%;
+      animation: sit-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+    }
+  }
+}
+
+/* Dropdowns and search results slide in. */
 @keyframes menu-in {
   from {
     opacity: 0;
@@ -95,12 +257,16 @@
   }
 }
 
+/* Reduced motion: everything shows its static end state immediately. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
   }
 }
 
@@ -108,6 +274,12 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+  }
+  /* The header is sticky from md up; keep anchor targets clear of it. */
+  @media (min-width: 48rem) {
+    html {
+      scroll-padding-top: 5.5rem;
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     html {

@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import SignupForm from "@/components/SignupForm";
+import SubscribePanel from "@/components/SubscribePanel";
 import { guideComponents } from "@/components/guide/mdx";
-import { formatLongDate, getAllGuides, getGuide, getGuideSlugs } from "@/lib/guides";
+import StopMarker, { stopNumber } from "@/components/route/StopMarker";
+import { formatLongDate, getGuide, getGuideSlugs } from "@/lib/guides";
 import { TOPICS } from "@/lib/topics";
 
 interface GuidePageProps {
@@ -44,8 +45,12 @@ export default async function GuidePage({ params }: GuidePageProps) {
   return (
     <main>
       {/* Masthead */}
-      <div className="bg-night text-on-night">
-        <div className="wrap flex max-w-none flex-col gap-4 pt-[clamp(1.5rem,4vw,3rem)] pb-[clamp(2.5rem,5vw,4rem)]">
+      <div className="relative overflow-hidden bg-night text-on-night">
+        <div
+          aria-hidden="true"
+          className="night-texture pointer-events-none absolute inset-0 [mask-image:radial-gradient(120%_90%_at_20%_0%,#000_30%,transparent_80%)]"
+        />
+        <div className="wrap relative flex flex-col gap-4 pt-[clamp(1.5rem,4vw,3rem)] pb-[clamp(2.5rem,5vw,4rem)]">
           <nav
             aria-label="Breadcrumb"
             className="font-display text-sm text-on-night-muted"
@@ -67,14 +72,12 @@ export default async function GuidePage({ params }: GuidePageProps) {
             </ol>
           </nav>
           <div className="flex max-w-[52rem] flex-col gap-4">
-            <p className="flex items-center gap-2 font-display text-sm font-semibold text-on-night-soft">
-              <span
-                aria-hidden="true"
-                className="size-3 rounded-full"
-                style={{ background: topic.line }}
-              />
-              {meta.stopTag ?? `Stop ${topic.stop}: ${topic.name}`}
-            </p>
+            <StopMarker
+              label={meta.stopTag ?? `Stop ${stopNumber(topic.stop)} · ${topic.name}`}
+              tone="night"
+              ring={topic.line}
+              className="text-on-night-soft"
+            />
             <h1 className="wdth-125 text-[clamp(2rem,4.4vw,3.5rem)] leading-[1.02] font-[870] tracking-[-0.025em]">
               {meta.headline}
             </h1>
@@ -101,7 +104,7 @@ export default async function GuidePage({ params }: GuidePageProps) {
       {/* Body with table of contents */}
       <div className="wrap grid grid-cols-[minmax(0,1fr)] justify-between gap-8 pt-[clamp(2.5rem,6vw,4.5rem)] pb-[clamp(3rem,7vw,5rem)] lg:grid-cols-[15rem_minmax(0,44rem)] lg:gap-16">
         <aside
-          className="sticky top-6 hidden self-start font-display lg:block"
+          className="sticky top-28 hidden self-start font-display lg:block"
           aria-labelledby="toc-title"
         >
           <p id="toc-title" className="mb-3.5 text-[0.9375rem] font-bold">
@@ -172,39 +175,11 @@ export default async function GuidePage({ params }: GuidePageProps) {
         </article>
       </div>
 
-      {/* Closing band */}
-      <div className="bg-night text-on-night">
-        <section
-          className="wrap flex flex-wrap items-end gap-x-16 gap-y-8 pt-[clamp(3.5rem,8vw,5.5rem)] pb-[clamp(2.5rem,6vw,4rem)]"
-          id="subscribe"
-          aria-labelledby="subscribe-title"
-        >
-          <div className="flex min-w-0 flex-[1_1_23.75rem] flex-col gap-3.5">
-            <h2
-              id="subscribe-title"
-              className="wdth-125 text-[clamp(2rem,4.4vw,3.5rem)] leading-none font-[880] tracking-[-0.03em]"
-            >
-              Get the next guide by email
-            </h2>
-            <p className="text-on-night-soft">
-              Subscribe to get the latest guides and practical notes for CRM,
-              Data 360 and Marketing Cloud data.
-            </p>
-          </div>
-          <div className="min-w-0 flex-[1_1_23.75rem]">
-            <SignupForm
-              label="Email address"
-              buttonLabel="Subscribe"
-              surface="night"
-              consent={
-                <>
-                  Unsubscribe anytime. <Link href="#privacy">Privacy</Link>
-                </>
-              }
-            />
-          </div>
-        </section>
-      </div>
+      <SubscribePanel
+        title="Get the next guide by email"
+        body="Subscribe to get the latest guides and practical notes for CRM, Data 360 and Marketing Cloud data."
+        consent="Unsubscribe anytime."
+      />
     </main>
   );
 }

@@ -4,10 +4,12 @@ import type { TopicId } from "./topics";
 export interface UpcomingArticle {
   title: string;
   summary: string;
-  /** Topic from the registry, or a custom label with its line colour. */
+  /**
+   * Topic from the registry, or a custom theme label. Themes outside the
+   * four stops get a neutral marker: route colours belong to topics only.
+   */
   topic?: TopicId;
   label?: string;
-  line?: string;
   tags: string[];
 }
 
@@ -50,7 +52,6 @@ export const UPCOMING: UpcomingArticle[] = [
   {
     title: "The segments that actually move LTV",
     label: "LTV",
-    line: "#2ec4b6",
     summary:
       "Turning order and engagement history into audiences worth expanding, and measuring whether the expansion paid for itself.",
     tags: ["data-360", "mce", "ltv"],
@@ -58,7 +59,6 @@ export const UPCOMING: UpcomingArticle[] = [
   {
     title: "Churn signals you already have",
     label: "Retention",
-    line: "#ff5d73",
     summary:
       "The drop-off patterns sitting in your existing event data, and how to act on them before the unsubscribe.",
     tags: ["braze", "mce", "retention"],

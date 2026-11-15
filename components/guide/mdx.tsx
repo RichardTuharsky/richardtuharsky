@@ -49,18 +49,24 @@ export function Block({
   );
 }
 
-/** A numbered stage with its roundel label. */
+/**
+ * A numbered stage with its roundel label. `level` lets the homepage show a
+ * stage inside its own sections without breaking the heading outline.
+ */
 export function Stage({
   id,
   num,
   title,
+  level = 2,
   children,
 }: {
   id: string;
   num: string;
   title: string;
+  level?: 2 | 3;
   children: ReactNode;
 }) {
+  const Heading = level === 3 ? "h3" : "h2";
   return (
     <section
       id={id}
@@ -70,12 +76,12 @@ export function Stage({
       <p className="flex items-center gap-2.5 font-display text-sm font-bold text-muted tabular-nums before:size-3.5 before:rounded-full before:border-[3px] before:border-ink before:bg-surface">
         {num}
       </p>
-      <h2
+      <Heading
         id={`${id}-title`}
-        className="wdth-112 text-[clamp(1.5rem,2.6vw,1.875rem)] leading-[1.12] font-extrabold tracking-[-0.015em]"
+        className="wdth-112 m-0 text-[clamp(1.5rem,2.6vw,1.875rem)] leading-[1.12] font-extrabold tracking-[-0.015em]"
       >
         {title}
-      </h2>
+      </Heading>
       {children}
     </section>
   );
