@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { articlesHref } from "@/lib/filters";
 
 const RESOURCE_ITEMS = [
   { filter: "mce", label: "Marketing Cloud Engagement" },
@@ -57,7 +58,7 @@ function NavDropdown({
           {items.map((item) => (
             <li key={item.label}>
               <Link
-                href={item.filter ? `/?filter=${item.filter}#articles` : "/#articles"}
+                href={articlesHref(item.filter)}
                 onClick={onNavigate}
                 className="block rounded-lg px-3 py-2.5 text-[0.9375rem] text-ink no-underline transition-[background-color,padding] duration-150 hover:bg-[#eef1f6] hover:pl-4 focus-visible:bg-[#eef1f6]"
               >

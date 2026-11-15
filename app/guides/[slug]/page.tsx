@@ -57,7 +57,7 @@ export default async function GuidePage({ params }: GuidePageProps) {
                 </Link>
               </li>
               <li className="after:ml-1.5 after:content-['/']">
-                <Link href="/#articles" className="text-on-night-muted">
+                <Link href="/articles" className="text-on-night-muted">
                   Articles
                 </Link>
               </li>
@@ -162,7 +162,7 @@ export default async function GuidePage({ params }: GuidePageProps) {
           />
 
           <div className="flex flex-wrap justify-between gap-3 border-t border-rule pt-6 font-display text-[0.9375rem]">
-            <Link href="/#articles" className="font-semibold text-ink">
+            <Link href="/articles" className="font-semibold text-ink">
               Back to all articles
             </Link>
             <a href="#top" className="font-semibold text-ink">

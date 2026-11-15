@@ -3,44 +3,29 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { GuideCard } from "./GuideCard";
-import type { GuideMeta } from "@/lib/guides";
-import { TOPICS, type TopicId } from "@/lib/topics";
-
-export const FILTER_LABELS: Record<string, string> = {
-  mce: "Marketing Cloud Engagement",
-  "mc-next": "MC Next",
-  "data-360": "Data 360",
-  braze: "Braze",
-  "customer-data": "Customer Data",
-  retention: "Retention",
-  ltv: "LTV",
-};
-
-export interface UpcomingArticle {
-  title: string;
-  summary: string;
-  /** Topic from the registry, or a custom label with its line colour. */
-  topic?: TopicId;
-  label?: string;
-  line?: string;
-  tags: string[];
-}
+import type { TaggedGuide, UpcomingArticle } from "@/lib/articles";
+import { FILTER_LABELS, articlesHref } from "@/lib/filters";
+import { TOPICS } from "@/lib/topics";
 
 interface ArticlesSectionProps {
-  guides: (GuideMeta & { tags: string[] })[];
+  guides: TaggedGuide[];
   upcoming: UpcomingArticle[];
+  /** "home": section under the hero, unfiltered. "page": body of /articles, honours ?filter=. */
+  variant?: "home" | "page";
 }
 
 /**
- * "Latest articles and resources", directly below the hero. The nav
- * dropdowns link here with ?filter=<tag>; matching is client-side.
+ * Article list. On the home page it is the "Latest articles and resources"
+ * section; on /articles it is the full list, filtered client-side by the
+ * ?filter=<tag> the nav dropdowns link with.
  */
 export default function ArticlesSection({
   guides,
   upcoming,
+  variant = "home",
 }: ArticlesSectionProps) {
   const searchParams = useSearchParams();
-  const filter = searchParams.get("filter") ?? "";
+  const filter = variant === "page" ? (searchParams.get("filter") ?? "") : "";
   const filterLabel = FILTER_LABELS[filter];
   const active = filterLabel ? filter : "";
 
@@ -55,20 +40,23 @@ export default function ArticlesSection({
     <section
       className="wrap py-section-sm md:py-section"
       id="articles"
-      aria-labelledby="articles-title"
+      aria-labelledby={variant === "home" ? "articles-title" : undefined}
+      aria-label={variant === "page" ? "Article list" : undefined}
     >
-      <div className="mb-[clamp(2.25rem,5vw,3.5rem)] flex max-w-[44rem] flex-col gap-3">
-        <h2
-          id="articles-title"
-          className="wdth-125 text-[clamp(1.875rem,4vw,2.75rem)] leading-none font-[850] tracking-[-0.025em]"
-        >
-          Latest articles and resources
-        </h2>
-        <p className="max-w-[37.5rem] text-muted">
-          The first guide is out. Subscribe to get the rest when they&rsquo;re
-          published.
-        </p>
-      </div>
+      {variant === "home" ? (
+        <div className="mb-[clamp(2.25rem,5vw,3.5rem)] flex max-w-[44rem] flex-col gap-3">
+          <h2
+            id="articles-title"
+            className="wdth-125 text-[clamp(1.875rem,4vw,2.75rem)] leading-none font-[850] tracking-[-0.025em]"
+          >
+            Latest articles and resources
+          </h2>
+          <p className="max-w-[37.5rem] text-muted">
+            The first guide is out. Subscribe to get the rest when they&rsquo;re
+            published.
+          </p>
+        </div>
+      ) : null}
 
       {active ? (
         <p className="mb-6 flex flex-wrap items-center gap-3 font-display text-sm text-muted">
@@ -76,7 +64,7 @@ export default function ArticlesSection({
           <span className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-rule bg-white py-1 pr-1.5 pl-3 font-bold text-ink">
             {filterLabel}
             <Link
-              href="/#articles"
+              href={articlesHref()}
               aria-label="Clear filter"
               className="grid size-6 place-items-center rounded-full bg-night text-[0.8125rem] leading-none text-white no-underline"
             >

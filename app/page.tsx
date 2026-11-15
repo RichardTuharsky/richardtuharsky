@@ -1,68 +1,17 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import ArticlesSection, {
-  type UpcomingArticle,
-} from "@/components/ArticlesSection";
+import ArticlesSection from "@/components/ArticlesSection";
 import PlatformRow from "@/components/PlatformRow";
 import SignupForm from "@/components/SignupForm";
 import SiteSearch, { type SearchEntry } from "@/components/SiteSearch";
-import { getAllGuides } from "@/lib/guides";
+import { UPCOMING, getTaggedGuides } from "@/lib/articles";
+import { articlesHref } from "@/lib/filters";
 import { TOPICS } from "@/lib/topics";
-
-/** Platform/theme tags per guide slug, used by the nav-dropdown filters. */
-const GUIDE_TAGS: Record<string, string[]> = {
-  "data-360-crm-data-stream-troubleshooting": ["data-360", "customer-data"],
-};
-
-const UPCOMING: UpcomingArticle[] = [
-  {
-    title: "Synced isn't the same as fresh",
-    topic: "usable-audiences",
-    summary:
-      "How to tell when your audience data last changed, and why a successful sync can still leave you with yesterday's customers.",
-    tags: ["mce", "data-360", "customer-data"],
-  },
-  {
-    title: "The automation that failed at 3am",
-    topic: "dependable-automation",
-    summary:
-      "Who finds out first when an overnight step breaks, and how to make sure it's you and not your customers.",
-    tags: ["mce", "mc-next"],
-  },
-  {
-    title: "The lead nobody followed up",
-    topic: "sales-handoffs",
-    summary:
-      "Tracing one lead from form fill to sales task, and the places it usually disappears.",
-    tags: ["mce", "customer-data"],
-  },
-  {
-    title: "One person, three IDs",
-    topic: "data-foundations",
-    summary:
-      "How duplicate records and mismatched identifiers creep in between CRM and marketing, and how to stop them.",
-    tags: ["data-360", "braze", "customer-data"],
-  },
-  {
-    title: "The segments that actually move LTV",
-    label: "LTV",
-    line: "#2ec4b6",
-    summary:
-      "Turning order and engagement history into audiences worth expanding, and measuring whether the expansion paid for itself.",
-    tags: ["data-360", "mce", "ltv"],
-  },
-  {
-    title: "Churn signals you already have",
-    label: "Retention",
-    line: "#ff5d73",
-    summary:
-      "The drop-off patterns sitting in your existing event data, and how to act on them before the unsubscribe.",
-    tags: ["braze", "mce", "retention"],
-  },
-];
+import richardPhoto from "@/assets/rt.png";
 
 export default function HomePage() {
-  const guides = getAllGuides();
+  const guides = getTaggedGuides();
 
   const searchIndex: SearchEntry[] = [
     ...guides.map((guide) => ({
@@ -70,20 +19,20 @@ export default function HomePage() {
       description: guide.summary,
       kind: "Guide" as const,
       url: `/guides/${guide.slug}`,
-      keywords: `${TOPICS[guide.topic].name} ${(GUIDE_TAGS[guide.slug] ?? []).join(" ")} salesforce crm data cloud cdp ingestion troubleshooting sync`,
+      keywords: `${TOPICS[guide.topic].name} ${guide.tags.join(" ")} salesforce crm data cloud cdp ingestion troubleshooting sync`,
     })),
     ...UPCOMING.map((item) => ({
       title: item.title,
       description: `Coming up. ${item.summary}`,
       kind: "Article" as const,
-      url: "/#articles",
+      url: articlesHref(),
       keywords: `${item.topic ? TOPICS[item.topic].name : item.label} ${item.tags.join(" ")}`,
     })),
     {
       title: "Marketing Cloud Engagement",
       description: "Journeys, automations, data extensions.",
       kind: "Platform",
-      url: "/?filter=mce#articles",
+      url: articlesHref("mce"),
       keywords:
         "sfmc marketing cloud engagement journey builder automation studio ampscript sql query",
     },
@@ -91,14 +40,14 @@ export default function HomePage() {
       title: "Marketing Cloud Next",
       description: "Core-platform journeys and migration.",
       kind: "Platform",
-      url: "/?filter=mc-next#articles",
+      url: articlesHref("mc-next"),
       keywords: "mc next marketing cloud next core platform migration data cloud native",
     },
     {
       title: "Data 360 and other CDPs",
       description: "Ingestion, segments, activation.",
       kind: "Platform",
-      url: "/?filter=data-360#articles",
+      url: articlesHref("data-360"),
       keywords:
         "data 360 data cloud cdp ingestion data streams segments activation identity dlo dmo",
     },
@@ -106,7 +55,7 @@ export default function HomePage() {
       title: "Braze",
       description: "Data feeds, audiences, identifiers.",
       kind: "Platform",
-      url: "/?filter=braze#articles",
+      url: articlesHref("braze"),
       keywords: "braze canvas segments catalogs connected content external id",
     },
     {
@@ -156,13 +105,7 @@ export default function HomePage() {
       </div>
 
       <Suspense>
-        <ArticlesSection
-          guides={guides.map((guide) => ({
-            ...guide,
-            tags: GUIDE_TAGS[guide.slug] ?? [],
-          }))}
-          upcoming={UPCOMING}
-        />
+        <ArticlesSection guides={guides} upcoming={UPCOMING} />
       </Suspense>
 
       <section
@@ -171,15 +114,13 @@ export default function HomePage() {
         aria-labelledby="about-title"
       >
         <div className="flex flex-wrap items-center gap-x-14 gap-y-8">
-          <div aria-hidden="true" className="relative size-[168px] flex-none">
-            <span className="absolute top-[78px] left-0 h-3 w-[168px] rounded-md bg-line-1" />
-            <span className="absolute top-[78px] left-0 h-3 w-[168px] rotate-45 rounded-md bg-line-2" />
-            <span className="absolute top-[78px] left-0 h-3 w-[168px] rotate-90 rounded-md bg-line-3" />
-            <span className="absolute top-[78px] left-0 h-3 w-[168px] rotate-[135deg] rounded-md bg-line-4" />
-            <b className="wdth-125 absolute top-8 left-8 grid size-[104px] place-items-center rounded-full border-8 border-ink bg-white font-display text-[1.75rem] font-[880] tracking-[-0.03em]">
-              RT
-            </b>
-          </div>
+          <Image
+            src={richardPhoto}
+            alt="Richard Tuharsky"
+            placeholder="blur"
+            sizes="220px"
+            className="h-auto w-[220px] flex-none rounded-2xl"
+          />
           <div className="flex min-w-0 max-w-[40rem] flex-[1_1_20rem] flex-col gap-4">
             <h2
               id="about-title"
